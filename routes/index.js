@@ -8,7 +8,7 @@ router.use(function(req, res, next) {
 
 //home index
 router.get('/', function(req, res) {
-  res.send('HOME');
+  res.render('home');
 });
 
 //joining a game from a list of games with open slots
@@ -19,6 +19,11 @@ router.get('/join_game', function(req, res) {
 //creating a new game
 router.get('/make_game', function(req, res) {
   res.send('MAKE');
+});
+
+//lobby for pregame chat
+router.get('/lobby', function(req, res) {
+  res.render('lobby');
 });
 
 module.exports.router = router; //export this for use in server.js
