@@ -13,9 +13,23 @@ html
             #messages li:nth-child(odd) { background: #eee; }
         script(src='/cr/socket.io/socket.io.js')
         script.
-            var socket = io.connect('http://10.9.6.5:8001/cr/');
+            $(document).ready(function() {
+                var socket = io.connect('10.9.6.5:8001'); //THIS ONE WORKS!!!
+                setInterval(function(){
+                    console.log('CONNECTED:', socket.connected);
+                }, 5000);
+                socket.on('news', function (data) {
+                    console.log(data);
+                    socket.emit('my other event', { my: 'data' });
+                });
+                $('form').submit(function(){
+                    socket.emit('chat message', $('#m').val());
+                    $('#m').val('');
+                    return false;
+                });
+            });
     body
         ul#messages
         form(action='')
             input#m(autocomplete='off')
-            button Send
+            button Send 
