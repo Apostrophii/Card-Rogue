@@ -1,0 +1,26 @@
+doctype html
+html
+    head
+        include ./includes/head
+        style.
+        script.
+            socket.emit('get_lobbies');
+            $(document).ready(function() {
+                socket.on('lobby_list', function(lobbies){
+                    for (var lobby in lobbies) {
+                        if (lobbies.hasOwnProperty(lobby)) {
+                            console.log(lobbies[lobby].name);
+                            $('#lobbies').append($('<li>').append($('<button>', {
+                                text: lobbies[lobby].name,
+                                id: lobby,
+                                click: function() {
+                                    socket.emit('join_lobby', lobby);
+                                    window.location.replace("lobby");
+                                }
+                            })));
+                        }
+                    }
+                });
+            });
+    body
+        ul#lobbies

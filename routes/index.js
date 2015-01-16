@@ -13,12 +13,12 @@ router.get('/', function(req, res) {
 
 //joining a game from a list of games with open slots
 router.get('/join_game', function(req, res) {
-  res.send('JOIN');
+  res.render('join_game');
 });
 
 //creating a new game
 router.get('/make_game', function(req, res) {
-  res.send('MAKE');
+  res.render('make_game');
 });
 
 //lobby for pregame chat

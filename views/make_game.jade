@@ -1,0 +1,21 @@
+doctype html
+html
+    head
+        include ./includes/head
+        script.
+            $(document).ready(function() {
+                $('form').submit(function(){
+                    socket.emit('make_lobby', {lobby_name: $('#lobby_name').val(), lobby_pwd: $('#lobby_pwd').val()});
+                    window.location.replace("lobby");
+                    return false;
+                });
+            });
+    body
+        form(action='')
+            label(for='lobby_name') Name:
+            input#lobby_name(autocomplete='off')
+            br
+            label(for='lobby_pwd') Pwd:
+            input#lobby_pwd(autocomplete='off')
+            br
+            button Create 

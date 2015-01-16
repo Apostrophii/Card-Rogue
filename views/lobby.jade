@@ -11,14 +11,12 @@ html
             #messages { list-style-type: none; margin: 0; padding: 0; }
             #messages li { padding: 5px 10px; }
             #messages li:nth-child(odd) { background: #eee; }
-        script(src='/cr/socket.io/socket.io.js')
         script.
             $(document).ready(function() {
-                //var socket = io.connect('10.9.6.5:8001'); //THIS ONE WORKS!!!
-                var socket = io.connect('cs.wallawalla.edu:8001');
-                //setInterval(function(){
-                //    console.log('CONNECTED:', socket.connected);
-                //}, 5000);
+                socket.emit('enter_lobby')
+                socket.on('lobby_info', function(info){
+                    console.log('LOBBY NAME:', info.lobby_name);
+                });
                 $('form').submit(function(){
                     socket.emit('chat message', $('#m').val());
                     $('#m').val('');
@@ -27,6 +25,9 @@ html
                 socket.on('chat message', function(msg){
                     console.log('RECEIVED:', msg);
                     $('#messages').append($('<li>').text(msg));
+                });
+                $(window).unload(function(){
+                    socket.emit('leave_lobby');
                 });
             });
     body
