@@ -31,6 +31,12 @@ ul {
     margin: 0;
 }
 
+/* SYSTEM MESSAGE */
+li.system {
+    position: relative;
+    top: 16px;
+    left: -24px;
+}
 
 /* SPEECH BUBBLE */
 li.speech {
@@ -90,39 +96,66 @@ span.square {
 }
 
 /* COLORS */
-li.gray, span.gray {
+span.gray {
+    background-image: url("images/DRRRicons/setton.png");
+}
+li.gray {
     background-color: gray;
 }
 li.gray:after {
     border-color: transparent gray;
 }
+span.red {
+    background-image: url("images/DRRRicons/saika.png");
+}
 li.red, span.red {
-    background-color: red;
+    background-color: #CC0000;
 }
 li.red:after {
-    border-color: transparent red;
+    border-color: transparent #CC0000;
+}
+span.green {
+    background-image: url("images/DRRRicons/bakyura.png");
 }
 li.green, span.green {
-    background-color: green;
+    background-color: #2EB82E;
 }
 li.green:after {
-    border-color: transparent green;
+    border-color: transparent #2EB82E;
+}
+span.blue {
+    background-image: url("images/DRRRicons/simon.png");
 }
 li.blue, span.blue {
-    background-color: blue;
+    background-color: #3366CC;
 }
 li.blue:after {
-    border-color: transparent blue;
+    border-color: transparent #3366CC;
+}
+span.yellow {
+    background-image: url("images/DRRRicons/koukin.png");
 }
 li.yellow, span.yellow {
-    background-color: yellow;
+    background-color: #FFD119;
 }
 li.yellow:after {
-    border-color: transparent yellow;
+    border-color: transparent #FFD119;
+}
+span.purple {
+    background-image: url("images/DRRRicons/chinese.png");
 }
 li.purple, span.purple {
     background-color: purple;
 }
 li.purple:after {
     border-color: transparent purple;
+}
+span.silver {
+    background-image: url("images/DRRRicons/shinra.png");
+}
+li.silver, span.silver {
+    background-color: silver;
+}
+li.silver:after {
+    border-color: transparent silver;
 }

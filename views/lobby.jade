@@ -5,9 +5,21 @@ html
         script.
             $(document).ready(function() {
                 socket.emit('enter_lobby')
+                var posts = 0;
                 socket.on('lobby_info', function(info){
-                    console.log('LOBBY NAME:', info.lobby_name);
+                    posts += info.log.length;
                     $('#lobby_name').text(info.lobby_name);
+                    for (i = 0; i < info.log.length; i++) {
+                        var m = info.log[i];
+                        $('#messages').prepend($('<br>'));
+                        if (m[0] == 'speech') {
+                            $('#messages').prepend($('<li>').attr('class', 'speech ' + m[2]).text(m[1]));
+                            $('#messages').prepend($('<span>').attr('class', 'square ' + m[2]));
+                        }
+                        else {
+                            $('#messages').prepend($('<li>').attr('class', 'system').text('-- ' + m[1]));
+                        }
+                    }
                 });
                 $('form').keypress(function(event){
                     if (event.keyCode == 13) {
@@ -20,13 +32,34 @@ html
                 });
                 var audioTag = new Audio('audio/drrr.mp3');
                 //audioTag.load();
-                socket.on('chat message', function(msg, color){
-                    console.log('RECEIVED:', msg, color);
-                    $('#messages').prepend($('<br>'));
-                    $('#messages').prepend($('<li>').attr('class', 'speech ' + color).text(msg));
-                    $('#messages').prepend($('<span>').attr('class', 'square ' + color));
-                    //audioTag.src = 'audio/drrr.mp3';
-                    audioTag.play();
+                socket.on('chat message', function(type, msg, color){
+                    posts += 1;
+                    if (type == 'speech') {
+                        $('#messages').prepend($('<br>'));
+                        $('#messages').prepend($('<li>').attr('class', 'speech ' + color).text(msg));
+                        $('#messages').prepend($('<span>').attr('class', 'square ' + color));
+                        //audioTag.src = 'audio/drrr.mp3';
+                        audioTag.play();
+                    }
+                    else {
+                        $('#messages').prepend($('<br>'));
+                        $('#messages').prepend($('<li>').attr('class', 'system').text('-- ' + msg));
+                    }
+                    /*
+                    if (posts > 5) {
+                        $('ul#messages:last-child').remove();
+                        var latest = $('#messages:last-child');
+                        if (latest.hasClass('speech')) {
+                            console.log('SPEECH');
+                            latest.remove();
+                            $('#messages:last-child').remove();
+                        }
+                        else {
+                            console.log('SYSTEM');
+                            $('#messages:last-child').remove();
+                        }
+                    }
+                    */
                 });
                 $(window).unload(function(){
                     socket.emit('leave_lobby');
@@ -38,6 +71,6 @@ html
         div.center
             div#lobby_name
             form(action='')
-                textarea#m(autocomplete='off' autofocus='true')
+                textarea#m(autocomplete='off' autofocus='true' maxlength='1000')
                 button Send 
         ul#messages
