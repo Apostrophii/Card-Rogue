@@ -46,8 +46,8 @@ var lobby_counter = 0;
 sessionSockets.on('connection', function(err, socket, session){
     console.log('\nsocket connected');
     //console.log(session);
-    session.save();
-    console.log('socket error:', err);
+    session.save(); //not sure if this is needed
+    //console.log('socket error:', err);
     socket.emit('session', session);
 
     socket.on('chat message', function(msg){
@@ -59,6 +59,7 @@ sessionSockets.on('connection', function(err, socket, session){
         lobby_counter += 1;
         lobbies[String(lobby_counter)] = {name: info.lobby_name, occupants: 0}; //create lobby
         session.room = String(lobby_counter);
+        console.log('JOINING:', session.room);
         session.save();
     });
 
@@ -68,6 +69,7 @@ sessionSockets.on('connection', function(err, socket, session){
 
     socket.on('join_lobby', function(room){
         session.room = room;
+        console.log('JOINING:', session.room);
         session.save();
     });
 
@@ -83,7 +85,6 @@ sessionSockets.on('connection', function(err, socket, session){
             session.save();
         }
         lobbies[session.room].occupants += 1;
-        console.log('OCCUPANTS:', lobbies[session.room].occupants);
         socket.join(session.room);
         session.lobby = lobbies[session.room].name;
         session.save();
@@ -94,8 +95,9 @@ sessionSockets.on('connection', function(err, socket, session){
         //socket.leave(session.room); //might not be neccessary
         console.log('LEAVING LOBBY');
         lobbies[session.room].occupants -= 1;
-        if (lobbies[session.room].occupants <= 0) {
+        if ((lobbies[session.room].occupants <= 0) && (session.room !== '0')) {
             delete lobbies[session.room];
+            //ADD a call to remove this lobby from existing lists in real time
         }
         session.lobby = null;
         session.save();
