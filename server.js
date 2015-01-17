@@ -40,7 +40,8 @@ rClient.on('connect', function(){
 
 //Constructs for the lobby system
 var lobbies = {};
-lobbies['0'] = {name: "Default", occupants: 0}; //default lobby
+var colors = ['purple', 'yellow', 'blue', 'green', 'red', 'gray'];
+lobbies['0'] = {name: "Empty Room", occupants: 0, capacity: 6, free_colors: colors}; //default lobby
 var lobby_counter = 0;
 
 sessionSockets.on('connection', function(err, socket, session){
@@ -52,12 +53,12 @@ sessionSockets.on('connection', function(err, socket, session){
 
     socket.on('chat message', function(msg){
         console.log('message: ' + msg);
-        io.to(session.room).emit('chat message', msg);
+        io.to(session.room).emit('chat message', msg, session.color);
     });
 
     socket.on('make_lobby', function(info){
         lobby_counter += 1;
-        lobbies[String(lobby_counter)] = {name: info.lobby_name, occupants: 0}; //create lobby
+        lobbies[String(lobby_counter)] = {name: info.lobby_name, occupants: 0, capacity: 6, free_colors: colors}; //create lobby
         session.room = String(lobby_counter);
         console.log('JOINING:', session.room);
         session.save();
@@ -87,6 +88,11 @@ sessionSockets.on('connection', function(err, socket, session){
         lobbies[session.room].occupants += 1;
         socket.join(session.room);
         session.lobby = lobbies[session.room].name;
+        session.color = lobbies[session.room].free_colors.pop();
+        if (session.color == undefined) {
+            session.color = 'silver';
+        }
+        console.log('COLOR:', session.color);
         session.save();
         socket.emit('lobby_info', {lobby_name: session.lobby});
     });
@@ -95,11 +101,13 @@ sessionSockets.on('connection', function(err, socket, session){
         //socket.leave(session.room); //might not be neccessary
         console.log('LEAVING LOBBY');
         lobbies[session.room].occupants -= 1;
+        lobbies[session.room].free_colors.push(session.color);
         if ((lobbies[session.room].occupants <= 0) && (session.room !== '0')) {
             delete lobbies[session.room];
             //ADD a call to remove this lobby from existing lists in real time
         }
         session.lobby = null;
+        session.color = null;
         session.save();
     });
 

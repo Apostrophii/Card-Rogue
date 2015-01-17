@@ -9,22 +9,35 @@ html
                     console.log('LOBBY NAME:', info.lobby_name);
                     $('#lobby_name').text(info.lobby_name);
                 });
-                $('form').submit(function(){
-                    socket.emit('chat message', $('#m').val());
-                    $('#m').val('');
-                    return false;
+                $('form').keypress(function(event){
+                    if (event.keyCode == 13) {
+                        if ($('#m').val() !== '') {
+                            socket.emit('chat message', $('#m').val());
+                        }
+                        $('#m').val('');
+                        return false;
+                    }
                 });
-                socket.on('chat message', function(msg){
-                    console.log('RECEIVED:', msg);
-                    $('#messages').append($('<li>').text(msg));
+                var audioTag = new Audio('audio/drrr.mp3');
+                //audioTag.load();
+                socket.on('chat message', function(msg, color){
+                    console.log('RECEIVED:', msg, color);
+                    $('#messages').prepend($('<br>'));
+                    $('#messages').prepend($('<li>').attr('class', 'speech ' + color).text(msg));
+                    $('#messages').prepend($('<span>').attr('class', 'square ' + color));
+                    //audioTag.src = 'audio/drrr.mp3';
+                    audioTag.play();
                 });
                 $(window).unload(function(){
                     socket.emit('leave_lobby');
                 });
             });
+        style
+            include ./css/lobby.css
     body
-        div#lobby_name
-        form(action='')
-            input#m(autocomplete='off')
-            button Send 
+        div.center
+            div#lobby_name
+            form(action='')
+                textarea#m(autocomplete='off' autofocus='true')
+                button Send 
         ul#messages

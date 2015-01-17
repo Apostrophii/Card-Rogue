@@ -9,16 +9,17 @@ html
                 socket.on('lobby_list', function(lobbies){
                     for (var lobby in lobbies) {
                         if (lobbies.hasOwnProperty(lobby)) {
-                            console.log(lobby);
-                            $('#lobbies').append($('<li>').append($('<button>', {
-                                text: lobbies[lobby].name,
-                                id: lobby,
-                                click: function() {
-                                    socket.emit('join_lobby', this.id);
-                                    console.log('JOINING:', this.id);
-                                    window.location.replace("lobby");
-                                }
-                            })));
+                            if (lobby !== '0') {
+                                $('#lobbies').append($('<li>').append($('<button>', {
+                                    text: lobbies[lobby].name,
+                                    id: lobby,
+                                    click: function() {
+                                        socket.emit('join_lobby', this.id);
+                                        console.log('JOINING:', this.id);
+                                        window.location.replace("lobby");
+                                    }
+                                })));
+                            }
                         }
                     }
                 });

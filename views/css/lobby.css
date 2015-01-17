@@ -1,0 +1,128 @@
+html {
+    color: white;
+    background-color: black;
+    margin: 0 auto;
+    width: 600px;
+    font-family: "lucida grande","Meiryo",tahoma,verdana,arial,sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+li {
+    list-style-type: none;
+    line-height: 130%;
+}
+button {
+    display: none;
+}
+#lobby_name {
+    text-align: center;
+    font-size: 150%;
+    padding: 0.3em;
+}
+#m {
+    width: 92%;
+    height: 4em;
+    resize: none;
+    font-size: 14px;
+    font-family: "lucida grande","Meiryo",tahoma,verdana,arial,sans-serif;
+    padding: 20px;
+}
+ul {
+    margin: 0;
+}
+
+
+/* SPEECH BUBBLE */
+li.speech {
+    position:relative;
+    display:inline-block;
+    padding: 20px;
+    margin:1.3em 0 0em;
+    border:4px solid white;
+    color: white;
+    background-color: silver;
+    -webkit-border-radius:15px;
+    -moz-border-radius:15px;
+    border-radius:15px;
+    /* for left-positioned triangle */
+    margin-left:16px;
+    max-width: 74%;
+}
+/* OUTER TRIANGLE */
+li.speech:before {
+    content:"";
+    position:absolute;
+    bottom: auto; /* value = - border-top-width - border-bottom-width */
+    left:-30px; /* value = - border-left-width - border-right-width */
+    top:19px; /* controls vertical position */
+    border-width:8px 26px 8px 0;
+    border-style:solid;
+    border-color:transparent white;
+    /* reduce the damage in FF3.0 */
+    display:block;
+    width:0;
+}
+
+/* INNER TRIANGLE */
+li.speech:after {
+    content:"";
+    position:absolute;
+    bottom: auto; /* value = - border-top-width - border-bottom-width */
+    left:-14px; /* value = - border-left-width - border-right-width */
+    top:23px; /* value = (:before top) + (:before border-top) - (:after border-top) */
+    border-width:4px 14px 4px 0;
+    border-style:solid;
+    border-color:transparent silver;
+    /* reduce the damage in FF3.0 */
+    display:block;
+    width:0;
+}
+
+span.square {
+    width: 58px;
+    height: 58px;
+    background-color: silver;
+    display: inline-block;
+    float: left;
+    top: 22px;
+    left: -24px;
+    position: relative;
+}
+
+/* COLORS */
+li.gray, span.gray {
+    background-color: gray;
+}
+li.gray:after {
+    border-color: transparent gray;
+}
+li.red, span.red {
+    background-color: red;
+}
+li.red:after {
+    border-color: transparent red;
+}
+li.green, span.green {
+    background-color: green;
+}
+li.green:after {
+    border-color: transparent green;
+}
+li.blue, span.blue {
+    background-color: blue;
+}
+li.blue:after {
+    border-color: transparent blue;
+}
+li.yellow, span.yellow {
+    background-color: yellow;
+}
+li.yellow:after {
+    border-color: transparent yellow;
+}
+li.purple, span.purple {
+    background-color: purple;
+}
+li.purple:after {
+    border-color: transparent purple;
+}
