@@ -1,0 +1,65 @@
+html {
+    color: white;
+    background-color: black;
+    margin: 20px auto;
+    width: 600px;
+    font-family: "lucida grande","Meiryo",tahoma,verdana,arial,sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+a {
+    color: white;
+    text-decoration: inherit;
+}
+ul {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+li {
+    list-style-type: none;
+    line-height: 130%;
+    font-size: 16px;
+}
+form {
+    text-align: center;
+}
+button {
+    padding: 0;
+    margin: 2px;
+    background : transparent;
+    font-family : inherit;
+    font-size : 1em;
+    color: inherit;
+    border: 2px solid white;
+    border-radius: 5px;
+    width: 185px;
+    height: 1.7em;
+}
+#create_game {
+    height: 1.8em;
+}
+input {
+    padding: 0;
+    margin: 2px;
+    background: transparent;
+    font-family : inherit;
+    font-size : 1em;
+    color: inherit;
+    border: 2px solid white;
+    border-radius: 5px;
+    width: 180px;
+    height: 1.7em;
+    text-align: center;
+}
+.title {
+    text-align: center;
+    text-transform: lowercase;
+    padding: 0px 6px 12px 6px;
+    border-bottom: 2px solid white
+}
+#main_title {
+    font-size: 200%;
+    text-transform: uppercase;
+    margin: 0;
+}

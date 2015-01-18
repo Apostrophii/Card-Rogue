@@ -61,7 +61,7 @@ html
                     }
                     */
                 });
-                $(window).unload(function(){
+                $(window).bind('beforeunload', function(){
                     socket.emit('leave_lobby');
                 });
             });

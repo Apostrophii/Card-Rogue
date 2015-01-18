@@ -2,20 +2,29 @@ doctype html
 html
     head
         include ./includes/head
+        style
+            include ./css/general.css
         script.
             $(document).ready(function() {
                 $('form').submit(function(){
-                    socket.emit('make_lobby', {lobby_name: $('#lobby_name').val(), lobby_pwd: $('#lobby_pwd').val()});
-                    window.location.replace("lobby");
+                    if ($('#lobby_name').val() !== '') {
+                        socket.emit('make_lobby', {lobby_name: $('#lobby_name').val(), lobby_pwd: $('#lobby_pwd').val()});
+                        window.location.replace("lobby");
+                    }
                     return false;
                 });
             });
     body
+        h1.title Create New Game
         form(action='')
-            label(for='lobby_name') Name:
-            input#lobby_name(autocomplete='off')
+            label(for='lobby_name') name
             br
-            label(for='lobby_pwd') Pwd:
-            input#lobby_pwd(autocomplete='off')
+            input#lobby_name(placeholder='' autocomplete='off' autofocus='true')
             br
-            button Create 
+            br
+            label(for='lobby_pwd') password
+            br
+            input#lobby_pwd(placeholder='(optional)' autocomplete='off')
+            br
+            br
+            button#create_game CREATE!

@@ -1,12 +1,15 @@
 doctype html
 html
     include ./includes/head.jade
+    style
+        include ./css/general.css
     body
-        h3
+        h3.title#main_title <br><br>CARD ROGUE<br><br><br>
+        h3.title
             a(href='/cr/') HOME
-            br
+        h3.title
             a(href='/cr/make_game') CREATE NEW GAME
-            br
+        h3.title
             a(href='/cr/join_game') JOIN GAME
-            br
+        h3.title
             a(href='/cr/lobby') LOBBY 

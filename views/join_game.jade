@@ -2,29 +2,61 @@ doctype html
 html
     head
         include ./includes/head
-        style.
+        style
+            include ./css/general.css
         script.
             socket.emit('get_lobbies');
             $(document).ready(function() {
                 socket.on('lobby_list', function(lobbies){
+                    $('#lobbies').empty();
+                    var displayed_num = 0;
                     for (var lobby in lobbies) {
                         if (lobbies.hasOwnProperty(lobby)) {
-                            if (lobby !== '0') {
+                            if ((lobby !== '0') && (lobby !== 'counter')) {
+                                displayed_num += 1;
                                 if (lobbies[lobby].occupants < lobbies[lobby].capacity) {
-                                    $('#lobbies').append($('<li>').append($('<button>', {
-                                        text: lobbies[lobby].name,
-                                        id: lobby,
-                                        click: function() {
-                                            socket.emit('join_lobby', this.id);
-                                            console.log('JOINING:', this.id);
-                                            window.location.replace("lobby");
-                                        }
-                                    })));
+                                    if (lobbies[lobby].has_pwd) {
+                                        $('#lobbies').append($('<li>').append(lobbies[lobby].name + '<br>').append($('<button>', {
+                                            text: 'JOIN!',
+                                            id: lobby,
+                                            click: function() {
+                                                socket.emit('check_pwd', this.id, $('#' + lobby + 'pwd').val());
+                                                socket.on('check_pwd_result', function(result) {
+                                                    if (result) {
+                                                        window.location.replace("lobby");
+                                                    }
+                                                    else { //got it wrong
+                                                        $('#' + lobby + 'pwd').val('');
+                                                    }
+                                                });
+                                            }
+                                            }))).append($('<input>', {placeholder: 'password', type: 'password', id: lobby + 'pwd'}).keypress(function(event){
+                                            if (event.keyCode == 13) {
+                                                $('#' + lobby).click();
+                                            }
+                                        }));
+                                    }
+                                    else {
+                                        $('#lobbies').append($('<li>').append(lobbies[lobby].name + '<br>').append($('<button>', {
+                                            text: 'JOIN!',
+                                            id: lobby,
+                                            click: function() {
+                                                socket.emit('join_lobby', this.id);
+                                                window.location.replace("lobby");
+                                            }
+                                        })));
+                                    }
+                                    $('#lobbies').append($('<br>'));
+                                    $('#lobbies').append($('<br>'));
                                 }
                             }
                         }
                     }
+                    if (displayed_num == 0) {
+                        $('#lobbies').append('-- none currently avaliable --');
+                    }
                 });
             });
     body
+        h1.title Avaliable Game Lobbies
         ul#lobbies

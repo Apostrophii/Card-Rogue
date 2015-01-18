@@ -1,28 +1,29 @@
 var express = require('express');
-var http = require('http');
+var http = require('http'); //not sure if I need this
 var app = express();
 var logger = require('morgan');
 var favicon = require('serve-favicon');
-var server = app.listen(8001);
-var io = require('socket.io').listen(server);
+var io = require('socket.io').listen(app.listen(8001));
 var session = require('express-session')
-var redis = require('redis');
 var RedisStore = require('connect-redis')(session);
-var rClient = redis.createClient();
+var rClient = require('redis').createClient();
 var sessionStore = new RedisStore({client:rClient});
 var cookieParser = require('cookie-parser')
 var SessionSockets = require('session.socket.io');
 var sessionSockets = new SessionSockets(io, sessionStore, cookieParser('secret'));
 
-// view engine setup
+// session setup
 app.use(cookieParser('secret'));
 app.use(session({store: sessionStore, name: 'connect.sid', secret: 'secret'}));
 
+// view engine setup
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
+//cause we're on a proxy server here
 app.enable('trust proxy');
 
+//and this is where all the routing comes from
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev')); //logging (obviously)
 app.use(express.static(__dirname + '/public'));
@@ -39,88 +40,18 @@ rClient.on('connect', function(){
 });
 
 //Constructs for the lobby system
-var lobbies = {};
+var lobbies = {counter: 100};
 var colors = ['purple', 'yellow', 'blue', 'green', 'red', 'gray'];
-lobbies['0'] = {name: "Empty Room", occupants: 0, capacity: 6, free_colors: colors, log: []}; //default lobby
-var lobby_counter = 0;
+lobbies['0'] = {name: "empty room", occupants: 0, capacity: 6, free_colors: colors, log: [], has_pwd: false}; //default lobby
+var lobby_pwds = {'0': ''};
 
 sessionSockets.on('connection', function(err, socket, session){
     console.log('\nsocket connected');
     //console.log(session);
-    session.save(); //not sure if this is needed
     //console.log('socket error:', err);
-    socket.emit('session', session);
 
-    socket.on('chat message', function(msg){
-        io.to(session.room).emit('chat message', 'speech', msg, session.color);
-        lobbies[session.room].log.push(['speech', msg, session.color]);
-        if (lobbies[session.room].log.length > 10) {
-            lobbies[session.room].log.splice(0, 1);
-        }
-    });
-
-    socket.on('make_lobby', function(info){
-        lobby_counter += 1;
-        lobbies[String(lobby_counter)] = {name: info.lobby_name, occupants: 0, capacity: 6, free_colors: colors, log: []}; //create lobby
-        session.room = String(lobby_counter);
-        console.log('JOINING:', session.room);
-        session.save();
-    });
-
-    socket.on('get_lobbies', function() {
-        socket.emit('lobby_list', lobbies);
-    });
-
-    socket.on('join_lobby', function(room){
-        session.room = room;
-        console.log('JOINING:', session.room);
-        session.save();
-    });
-
-    socket.on('enter_lobby', function() {
-        if(session.room == undefined) { //check if the client is connnected to a room
-            console.log('undefined user entering lobby');
-            session.room = '0'; //if not add them to the default room
-            session.save();
-        }
-        if(lobbies[session.room] == undefined) { //might consider changing this later
-            console.log('user attempting to enter underined lobby');
-            session.room = '0';
-            session.save();
-        }
-        lobbies[session.room].occupants += 1;
-        socket.join(session.room);
-        session.lobby = lobbies[session.room].name;
-        session.color = lobbies[session.room].free_colors.pop();
-        if (session.color == undefined) {
-            session.color = 'silver';
-        }
-        session.save();
-        lobbies[session.room].log.push(['system', session.color + ' logged in.', 'white']);
-        if (lobbies[session.room].log.length > 10) {
-            lobbies[session.room].log.splice(0, 1);
-        }
-        socket.emit('lobby_info', {lobby_name: session.lobby, log: lobbies[session.room].log.slice(0, -1)});
-        io.to(session.room).emit('chat message', 'system', session.color + ' logged in.', 'white');
-    });
-
-    socket.on('leave_lobby', function() {
-        //socket.leave(session.room); //might not be neccessary
-        lobbies[session.room].occupants -= 1;
-        lobbies[session.room].free_colors.push(session.color);
-        if ((lobbies[session.room].occupants <= 0) && (session.room !== '0')) {
-            delete lobbies[session.room];
-            //ADD a call to remove this lobby from existing lists in real time
-        }
-        io.to(session.room).emit('chat message', 'system', session.color + ' logged out.', 'white');
-        if (lobbies[session.room].log.length > 10) {
-            lobbies[session.room].log.splice(0, 1);
-        }
-        lobbies[session.room].log.push(['system', session.color + ' logged out.', 'white']);
-        session.lobby = null;
-        session.color = null;
-        session.save();
-    });
+    //pull in the different components
+    require('./components/lobby_system.js')(socket, session, io, lobbies, lobby_pwds, colors);
 
     socket.on('disconnect', function(){
         console.log('socket disconnected');
