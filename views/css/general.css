@@ -35,6 +35,10 @@ button {
     border-radius: 5px;
     width: 185px;
     height: 1.7em;
+    cursor: pointer;
+}
+input:focus, select:focus, textarea:focus, button:focus {
+    outline: none;
 }
 #create_game {
     height: 1.8em;
@@ -62,4 +66,35 @@ input {
     font-size: 200%;
     text-transform: uppercase;
     margin: 0;
+}
+
+/* SLIDER STYLING */
+.slider {
+    width: 182px;
+    position: relative;
+    top: -6px;
+    left: 200px;
+}
+.ui-slider-pip-selected .ui-slider-label {
+    color: white;
+}
+.ui-slider-pips .ui-slider-pip-selected-initial {
+    color: #999;
+    font-weight: inherit;
+}
+.ui-slider-horizontal {
+    height: 1px;
+}
+.ui-slider-horizontal .ui-slider-handle {
+    top: -10px;
+}
+.ui-slider-horizontal.ui-slider-pips {
+    margin-bottom: 1.9em;
+}
+.ui-slider-pips .ui-slider-pip {
+    top: 15px;
+}
+.ui-state-default, .ui-widget-content .ui-state-default {
+    background: black;
+    border: 2px solid white;
 }

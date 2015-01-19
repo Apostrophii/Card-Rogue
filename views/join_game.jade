@@ -13,26 +13,26 @@ html
                     for (var lobby in lobbies) {
                         if (lobbies.hasOwnProperty(lobby)) {
                             if ((lobby !== '0') && (lobby !== 'counter')) {
-                                displayed_num += 1;
                                 if (lobbies[lobby].occupants < lobbies[lobby].capacity) {
+                                    displayed_num += 1;
                                     if (lobbies[lobby].has_pwd) {
                                         $('#lobbies').append($('<li>').append(lobbies[lobby].name + '<br>').append($('<button>', {
                                             text: 'JOIN!',
                                             id: lobby,
                                             click: function() {
-                                                socket.emit('check_pwd', this.id, $('#' + lobby + 'pwd').val());
-                                                socket.on('check_pwd_result', function(result) {
+                                                socket.emit('check_pwd', this.id, $('#' + this.id + 'pwd').val());
+                                                socket.on('check_pwd_result', function(result, id_num) {
                                                     if (result) {
                                                         window.location.replace("lobby");
                                                     }
                                                     else { //got it wrong
-                                                        $('#' + lobby + 'pwd').val('');
+                                                        $('#' + id_num + 'pwd').val('');
                                                     }
                                                 });
                                             }
-                                            }))).append($('<input>', {placeholder: 'password', type: 'password', id: lobby + 'pwd'}).keypress(function(event){
+                                        }))).append($('<input>', {placeholder: 'password', type: 'password', id: lobby + 'pwd'}).keypress(function(event){
                                             if (event.keyCode == 13) {
-                                                $('#' + lobby).click();
+                                                $('#' + this.id.slice(0, -3)).click();
                                             }
                                         }));
                                     }

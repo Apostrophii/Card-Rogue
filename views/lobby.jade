@@ -7,6 +7,9 @@ html
                 socket.emit('enter_lobby')
                 var posts = 0;
                 socket.on('lobby_info', function(info){
+                    if (info.room == '0') {
+                        $('#ready_button').css('display', 'none');
+                    }
                     posts += info.log.length;
                     $('#lobby_name').text(info.lobby_name);
                     for (i = 0; i < info.log.length; i++) {
@@ -61,6 +64,18 @@ html
                     }
                     */
                 });
+                $('#ready_button').click(function() {
+                    $(this).text(function(i, text){
+                        if (text == 'ready?') {
+                            $(this).css('background-color', 'lime');
+                            return 'READY!';
+                        }
+                        else {
+                            $(this).css('background-color', 'black');
+                            return 'ready?'
+                        }
+                    });
+                });
                 $(window).bind('beforeunload', function(){
                     socket.emit('leave_lobby');
                 });
@@ -70,7 +85,7 @@ html
     body
         div.center
             div#lobby_name
+            button#ready_button ready?
             form(action='')
                 textarea#m(autocomplete='off' autofocus='true' maxlength='1000')
-                button Send 
         ul#messages

@@ -19,6 +19,7 @@ app.use(session({store: sessionStore, name: 'connect.sid', secret: 'secret'}));
 // view engine setup
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
+app.locals.basedir = '/var/www/cr/public/';
 
 //cause we're on a proxy server here
 app.enable('trust proxy');

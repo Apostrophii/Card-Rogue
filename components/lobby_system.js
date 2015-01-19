@@ -10,10 +10,10 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors) {
     socket.on('make_lobby', function(info){
         lobbies.counter += 1;
         if ((info.lobby_pwd == '') || (info.lobby_pwd == undefined)) {
-            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: 6, free_colors: colors, log: []}; //create lobby without pwd
+            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, free_colors: colors, log: []}; //create lobby without pwd
         }
         else {
-            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: 6, free_colors: colors, log: [], has_pwd: true}; //create lobby with pwd
+            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, free_colors: colors, log: [], has_pwd: true}; //create lobby with pwd
             lobby_pwds[String(lobbies.counter)] = info.lobby_pwd;
         }
         session.room = String(lobbies.counter);
@@ -28,10 +28,10 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors) {
         if (lobby_pwds[room] == pwd) {
             session.room = room;
             session.save();
-            socket.emit('check_pwd_result', true);
+            socket.emit('check_pwd_result', true, room);
         }
         else {
-            socket.emit('check_pwd_result', false);
+            socket.emit('check_pwd_result', false, room);
         }
     });
 
@@ -64,7 +64,7 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors) {
         if (lobbies[session.room].log.length > 10) {
             lobbies[session.room].log.splice(0, 1);
         }
-        socket.emit('lobby_info', {lobby_name: session.lobby, log: lobbies[session.room].log.slice(0, -1)});
+        socket.emit('lobby_info', {lobby_name: session.lobby, log: lobbies[session.room].log.slice(0, -1), room: session.room});
         io.to(session.room).emit('chat message', 'system', session.color + ' logged in.', 'white');
         io.emit('lobby_list', lobbies); //update people looking at lobby list
     });

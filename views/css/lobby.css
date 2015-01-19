@@ -12,12 +12,26 @@ li {
     line-height: 130%;
 }
 button {
-    display: none;
+    padding: 0;
+    margin: 2px;
+    background : transparent;
+    font-family : inherit;
+    font-size : 1em;
+    color: inherit;
+    border: 2px solid white;
+    border-radius: 5px;
+    width: 120px;
+    height: 1.7em;
+    cursor: pointer;
+    margin-left: 231px;
+    margin-bottom: 10px;
+    background-color: black;
 }
 #lobby_name {
     text-align: center;
     font-size: 150%;
     padding: 20px;
+    padding-bottom: 10px;
 }
 #m {
     width: 92%;
@@ -29,6 +43,9 @@ button {
 }
 ul {
     margin: 0;
+}
+input:focus, select:focus, textarea:focus, button:focus {
+    outline: none;
 }
 
 /* SYSTEM MESSAGE */
