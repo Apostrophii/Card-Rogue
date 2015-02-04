@@ -1,0 +1,58 @@
+doctype html
+html
+    include ./includes/head.jade
+    script.
+        $(document).ready(function() {
+            canvas = document.getElementById("gameCanvas");
+            canvas.width = document.body.clientWidth;
+            canvas.height = document.body.clientHeight;
+            queue = new createjs.LoadQueue(true);
+            queue.on("complete", handleComplete, this);
+            stage = new createjs.Stage('gameCanvas');
+            createjs.Ticker.setFPS(60);
+            createjs.Ticker.addEventListener('tick', stage);
+        });
+        function loadImage() {
+            queue.loadFile({id: 'testcard_front', src: 'images/sync/basic_card.front.png'});
+            queue.loadFile({id: 'testcard_back', src: 'images/sync/basic_card.back.png'});
+        }
+        function handleComplete() {
+            var testcard_front = queue.getResult('testcard_front');
+            var testcard_back = queue.getResult('testcard_back');
+            var testcard_front = new createjs.Bitmap(testcard_front);
+            var testcard_back = new createjs.Bitmap(testcard_back);
+            var bounds = testcard_front.getBounds();
+            testcard_front.regX = bounds.width / 2;
+            testcard_front.regY = bounds.height / 2;
+            testcard_back.regX = bounds.width / 2;
+            testcard_back.regY = bounds.height / 2;
+            testcard_front.x = 300;
+            testcard_front.y = 300;
+            testcard_back.x = 300;
+            testcard_back.y = 300;
+            testcard_front2 = testcard_front.clone();
+            testcard_back2 = testcard_back.clone();
+            testcard_front2.x = 800;
+            testcard_back2.x = 800;
+            stage.addChild(testcard_front);
+            stage.addChild(testcard_back);
+            stage.addChild(testcard_front2);
+            stage.addChild(testcard_back2);
+            cardFlip(testcard_back, testcard_front, 300);
+            cardFlip(testcard_front2, testcard_back2, 1000);
+        }
+        function cardFlip(face1, face2, time) {
+            face2.x = face1.x;
+            face2.y = face1.y;
+            var init_scale = face1.scaleX;
+            face2.scaleX = 0;
+            var other_side = createjs.Tween.get(face2, {paused: true}).to({scaleX: init_scale}, time / 2);
+            createjs.Tween.get(face1).to({scaleX: 0}, time / 2).play(other_side);
+        }
+    body
+        p THIS IS A TEST
+        p
+            button(onclick='loadImage();', class='load-image' autofocus='true') LOAD IMAGE
+        canvas(id='gameCanvas', width='800', height='800')
+        //img(src='images/sync/basic_card.front.png')
+        //img(src='images/sync/basic_card.back.png')

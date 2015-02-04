@@ -26,4 +26,9 @@ router.get('/lobby', function(req, res) {
   res.render('lobby');
 });
 
+//the actual game
+router.get('/game', function(req, res) {
+    res.render('game');
+});
+
 module.exports.router = router; //export this for use in server.js

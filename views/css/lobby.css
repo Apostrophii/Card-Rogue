@@ -7,6 +7,9 @@ html {
     font-size: 14px;
     letter-spacing: 2px;
 }
+body {
+    margin: 0;
+}
 li {
     list-style-type: none;
     line-height: 130%;
@@ -76,7 +79,7 @@ li.speech:before {
     content:"";
     position:absolute;
     bottom: auto; /* value = - border-top-width - border-bottom-width */
-    left:-30px; /* value = - border-left-width - border-right-width */
+    left:-29px; /* value = - border-left-width - border-right-width */
     top:19px; /* controls vertical position */
     border-width:8px 26px 8px 0;
     border-style:solid;
@@ -91,7 +94,7 @@ li.speech:after {
     content:"";
     position:absolute;
     bottom: auto; /* value = - border-top-width - border-bottom-width */
-    left:-14px; /* value = - border-left-width - border-right-width */
+    left:-13px; /* value = - border-left-width - border-right-width */
     top:23px; /* value = (:before top) + (:before border-top) - (:after border-top) */
     border-width:4px 14px 4px 0;
     border-style:solid;
@@ -175,4 +178,24 @@ li.silver, span.silver {
 }
 li.silver:after {
     border-color: transparent silver;
+}
+/* MEDIA QUERIES */
+@media (max-width: 60em) {
+    li.speech {
+        max-width: 70%;
+    }
+}
+@media (max-width: 50em) {
+    html {
+        margin: auto;
+        width: auto;
+    }   
+    li.speech {
+        max-width: 60%;
+    }
+}
+@media (max-width: 40em) {
+    li.speech {
+        max-width: 50%;
+    }
 }

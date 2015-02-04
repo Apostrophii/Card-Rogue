@@ -7,6 +7,9 @@ html {
     font-size: 14px;
     letter-spacing: 2px;
 }
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
 a {
     color: white;
     text-decoration: inherit;
@@ -59,7 +62,7 @@ input {
 .title {
     text-align: center;
     text-transform: lowercase;
-    padding: 0px 6px 12px 6px;
+    padding: 12px 6px 12px 6px;
     border-bottom: 2px solid white
 }
 #main_title {
@@ -72,8 +75,9 @@ input {
 .slider {
     width: 182px;
     position: relative;
+    margin: auto;
     top: -6px;
-    left: 200px;
+    /* left: 200px; */
 }
 .ui-slider-pip-selected .ui-slider-label {
     color: white;
@@ -97,4 +101,12 @@ input {
 .ui-state-default, .ui-widget-content .ui-state-default {
     background: black;
     border: 2px solid white;
+}
+
+/* MEDIA QUERIES */
+@media (max-width: 50em) {
+    html {
+        margin: 10px auto;
+        width: auto;
+    }
 }
