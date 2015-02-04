@@ -19,35 +19,45 @@ html
         function handleComplete() {
             var testcard_front = queue.getResult('testcard_front');
             var testcard_back = queue.getResult('testcard_back');
-            var testcard_front = new createjs.Bitmap(testcard_front);
-            var testcard_back = new createjs.Bitmap(testcard_back);
-            var bounds = testcard_front.getBounds();
-            testcard_front.regX = bounds.width / 2;
-            testcard_front.regY = bounds.height / 2;
-            testcard_back.regX = bounds.width / 2;
-            testcard_back.regY = bounds.height / 2;
-            testcard_front.x = 300;
-            testcard_front.y = 300;
-            testcard_back.x = 300;
-            testcard_back.y = 300;
-            testcard_front2 = testcard_front.clone();
-            testcard_back2 = testcard_back.clone();
-            testcard_front2.x = 800;
-            testcard_back2.x = 800;
-            stage.addChild(testcard_front);
-            stage.addChild(testcard_back);
-            stage.addChild(testcard_front2);
-            stage.addChild(testcard_back2);
-            cardFlip(testcard_back, testcard_front, 300);
-            cardFlip(testcard_front2, testcard_back2, 1000);
+            card1 = new Card(testcard_front, testcard_back, false);
+            card1.move(300, 300, 0);
+            card1.flip(0, 1000);
+            card1.move(500, 500, 1000, 2000);
         }
-        function cardFlip(face1, face2, time) {
-            face2.x = face1.x;
-            face2.y = face1.y;
-            var init_scale = face1.scaleX;
-            face2.scaleX = 0;
-            var other_side = createjs.Tween.get(face2, {paused: true}).to({scaleX: init_scale}, time / 2);
-            createjs.Tween.get(face1).to({scaleX: 0}, time / 2).play(other_side);
+        function Card(front, back, faceUp) {
+            this.front = new createjs.Bitmap(front);
+            this.back = new createjs.Bitmap(back);
+            var bounds = this.front.getBounds();
+            this.front.regX = bounds.width / 2;
+            this.front.regY = bounds.height / 2;
+            this.back.regX = bounds.width / 2;
+            this.back.regY = bounds.height / 2;
+            if (faceUp) {
+                this.up = this.front;
+                this.down = this.back;
+            } else {
+                this.up = this.back;
+                this.down = this.front;
+            }
+            this.front.visible = false;
+            this.back.visible = false;
+            stage.addChild(this.front);
+            stage.addChild(this.back);
+            this.move = function(x, y, wait, time) {
+                this.down.x = x;
+                this.down.y = y;
+                this.up.visible = true;
+                createjs.Tween.get(this.up).wait(wait).to({x: x, y: y}, time);
+            }
+            this.flip = function(wait, time) {
+                var face1 = this.up;
+                var face2 = this.down;
+                this.up = [this.down, this.down = this.up][0] //this swaps the values
+                var init_scale = face1.scaleX;
+                face2.scaleX = 0;
+                var other_side = createjs.Tween.get(face2, {paused: true}).to({visible: true}).to({scaleX: init_scale}, time / 2);
+                createjs.Tween.get(face1).wait(wait).to({scaleX: 0}, time / 2).to({visible: false}, 0).play(other_side);
+            }
         }
     body
         p THIS IS A TEST
