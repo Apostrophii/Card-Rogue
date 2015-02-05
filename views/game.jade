@@ -1,11 +1,26 @@
 doctype html
 html
     include ./includes/head.jade
+    style
+        include ./css/game.css
+    script
+        include ./includes/cards.js
     script.
         $(document).ready(function() {
+            MAXWIDTH = 1500;
+            MAXHEIGHT = 1000;
+            WIDTH = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+            HEIGHT = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+            if (WIDTH > MAXWIDTH) {
+                WIDTH = MAXWIDTH;
+            }
+            if (HEIGHT > MAXHEIGHT) {
+                HEIGHT = MAXHEIGHT;
+            }
+            RATIO = WIDTH / MAXWIDTH;
             canvas = document.getElementById("gameCanvas");
-            canvas.width = document.body.clientWidth;
-            canvas.height = document.body.clientHeight;
+            canvas.width = WIDTH;
+            canvas.height = HEIGHT;
             queue = new createjs.LoadQueue(true);
             queue.on("complete", handleComplete, this);
             stage = new createjs.Stage('gameCanvas');
@@ -19,50 +34,17 @@ html
         function handleComplete() {
             var testcard_front = queue.getResult('testcard_front');
             var testcard_back = queue.getResult('testcard_back');
-            card1 = new Card(testcard_front, testcard_back, false);
-            card1.move(300, 300, 0);
-            card1.flip(0, 1000);
-            card1.move(500, 500, 1000, 2000);
-        }
-        function Card(front, back, faceUp) {
-            this.front = new createjs.Bitmap(front);
-            this.back = new createjs.Bitmap(back);
-            var bounds = this.front.getBounds();
-            this.front.regX = bounds.width / 2;
-            this.front.regY = bounds.height / 2;
-            this.back.regX = bounds.width / 2;
-            this.back.regY = bounds.height / 2;
-            if (faceUp) {
-                this.up = this.front;
-                this.down = this.back;
-            } else {
-                this.up = this.back;
-                this.down = this.front;
-            }
-            this.front.visible = false;
-            this.back.visible = false;
-            stage.addChild(this.front);
-            stage.addChild(this.back);
-            this.move = function(x, y, wait, time) {
-                this.down.x = x;
-                this.down.y = y;
-                this.up.visible = true;
-                createjs.Tween.get(this.up).wait(wait).to({x: x, y: y}, time);
-            }
-            this.flip = function(wait, time) {
-                var face1 = this.up;
-                var face2 = this.down;
-                this.up = [this.down, this.down = this.up][0] //this swaps the values
-                var init_scale = face1.scaleX;
-                face2.scaleX = 0;
-                var other_side = createjs.Tween.get(face2, {paused: true}).to({visible: true}).to({scaleX: init_scale}, time / 2);
-                createjs.Tween.get(face1).wait(wait).to({scaleX: 0}, time / 2).to({visible: false}, 0).play(other_side);
-            }
+            card2 = new Card(testcard_front, testcard_back, true, "testing 1 2 3 4 5 6 7 8 9 0", "15px", "Arial", "#777777", 10, "center");
+            card1 = new Card(testcard_front, testcard_back, false, "testing 1 2 3 4 5 6 7 8 9 0", "15px", "Arial", "#777777", 10, "center");
+            card1.move(250, 250, 1000, 1000);
+            card1.flip(2000, 1000);
+            card1.move(800, 250, 3000, 1000);
+            card2.move(250, 250, 4000, 1000);
+            card2.flip(5000, 1000);
+            card2.move(300, 250, 6000, 1000);
         }
     body
         p THIS IS A TEST
         p
             button(onclick='loadImage();', class='load-image' autofocus='true') LOAD IMAGE
         canvas(id='gameCanvas', width='800', height='800')
-        //img(src='images/sync/basic_card.front.png')
-        //img(src='images/sync/basic_card.back.png')
