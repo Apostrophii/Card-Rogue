@@ -25,39 +25,6 @@ function Card(stage, front, back) {
     stage.addChild(this.card); //add card to stage
     stage.update(); //might not need this
 
-    /*
-    if (preset == "center") {
-        this.edgeOffset = 30 * RATIO;
-        this.text = new createjs.Text(text, "15px Arial", "#CC0000");
-        this.text.lineWidth = this.cardBounds.width - (this.edgeOffset * 2);
-        this.textHeight = this.text.getMeasuredHeight();
-        this.text.textAlign = "center";
-        this.text.regY = this.textHeight / 2; //apparently only the regY is needed for text
-        this.faceUp = true;
-        this.backFace.scaleX = 0;
-    } else if (preset == "top") {
-        this.edgeOffset = 30 * RATIO;
-        this.text = new createjs.Text(text, "15px Arial", "#CC0000");
-        this.text.lineWidth = this.cardBounds.width - (this.edgeOffset * 2);
-        this.textHeight = this.text.getMeasuredHeight();
-        this.text.textAlign = "center";
-        this.text.regY = (this.cardBounds.height / 2) - this.edgeOffset; //apparently only the regY is needed for text
-        this.faceUp = true;
-        this.backFace.scaleX = 0;
-    } else if (preset == "bottom") {
-        this.edgeOffset = 30 * RATIO;
-        this.text = new createjs.Text(text, "15px Arial", "#CC0000");
-        this.text.lineWidth = this.cardBounds.width - (this.edgeOffset * 2);
-        this.textHeight = this.text.getMeasuredHeight();
-        this.text.textAlign = "center";
-        this.text.regY = -(this.cardBounds.height / 2) + this.edgeOffset + this.textHeight; //apparently only the regY is needed for text
-        this.faceUp = true;
-        this.backFace.scaleX = 0;
-    } else {
-        console.log("INVALID PRESET");
-    }
-    */
-
     this.move = function(x1, y1, x2, y2, time, delay) {
         createjs.Tween.get(this.card).wait(delay, true).to({x: x1, y: y1}, 0).to({x: x2, y: y2}, time);
     }
@@ -92,15 +59,15 @@ function Card(stage, front, back) {
             this.back.removeChild(this.back.getChildByName(preset));
         }
         if (preset == "center") {
-            var edgeOffset = 30 * RATIO;
-            var child = new createjs.Text(data, "15px Arial", "#CC0000");
+            var edgeOffset = 30;
+            var child = new createjs.Text(data, "18px Arial", "#CC0000");
             child.name = preset;
             child.lineWidth = this.cardBounds.width - (edgeOffset * 2);
             child.textAlign = "center";
             child.regY = child.getMeasuredHeight() / 2;
             this.front.addChild(child);
         } else if (preset == "top") {
-            var edgeOffset = 30 * RATIO;
+            var edgeOffset = 30;
             var child = new createjs.Text(data, "15px Arial", "#CC0000");
             child.name = preset;
             child.lineWidth = this.cardBounds.width - (edgeOffset * 2);
@@ -108,7 +75,7 @@ function Card(stage, front, back) {
             child.regY = (this.cardBounds.height / 2) - edgeOffset;
             this.front.addChild(child);
         } else if (preset == "bottom") {
-            var edgeOffset = 30 * RATIO;
+            var edgeOffset = 30;
             var child = new createjs.Text(data, "15px Arial", "#CC0000");
             child.name = preset;
             child.lineWidth = this.cardBounds.width - (edgeOffset * 2);

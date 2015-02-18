@@ -21,11 +21,12 @@ html
             canvas = document.getElementById("gameCanvas");
             canvas.width = WIDTH;
             canvas.height = HEIGHT;
-            queue = new createjs.LoadQueue(true);
-            queue.on("complete", handleComplete, this);
             stage = new createjs.Stage('gameCanvas');
             createjs.Ticker.setFPS(60);
             createjs.Ticker.addEventListener('tick', stage);
+            queue = new createjs.LoadQueue(true);
+            queue.on("complete", handleComplete, this);
+            loadImage(); //for testing purposes
         });
         function loadImage() {
             queue.loadFile({id: 'testcard_front', src: 'images/sync/basic_card.front.png'});
@@ -35,27 +36,15 @@ html
             var testcard_front = queue.getResult('testcard_front');
             var testcard_back = queue.getResult('testcard_back');
             var sample_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-            card1 = new Card(testcard_front, testcard_back, sample_text, "top");
-            card2 = new Card(testcard_front, testcard_back, sample_text, "center");
-            card3 = new Card(testcard_front, testcard_back, sample_text, "bottom");
+            card1 = new Card(stage, testcard_front, testcard_back);
+            card1.addElem("center", sample_text);
+            card1.updateElem("center", {color: "#00CC00"});
+            card1.addElem("top", "testing 1 2 3");
 
-            card1.move(-250, 250, 250, 250, 1000, 0);
+            card1.move(-250 * RATIO, 250 * RATIO, 250 * RATIO, 250 * RATIO, 1000, 0);
             card1.flip(1000, 1000);
-            card1.move(250, 250, 800, 250, 1000, 2000);
+            card1.move(250 * RATIO, 250 * RATIO, 800 * RATIO, 250 * RATIO, 1000, 2000);
             card1.flip(1000, 3000);
-
-            card2.move(-250, 250, 250, 250, 1000, 2000);
-            card2.flip(1000, 3000);
-            card2.move(250, 250, 800, 250, 1000, 4000);
-            card2.flip(1000, 5000);
-
-            card3.move(-250, 250, 250, 250, 1000, 4000);
-            card3.flip(1000, 5000);
-            card3.move(250, 250, 800, 250, 1000, 6000);
-            card3.flip(1000, 7000);
         }
     body
-        p THIS IS A TEST
-        p
-            button(onclick='loadImage();', class='load-image' autofocus='true') LOAD IMAGE
-        canvas(id='gameCanvas', width='800', height='800')
+        canvas(id='gameCanvas')
