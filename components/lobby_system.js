@@ -1,6 +1,11 @@
 module.exports = function(socket, session, io, lobbies, lobby_pwds, colors) {
-    socket.on('chat message', function(msg){
-        io.to(session.room).emit('chat message', 'speech', msg, session.color);
+    socket.on('player_ready', function(num) {
+        lobbies[session.room].ready += num;
+        io.to(session.room).emit('ready_count', lobbies[session.room].ready, lobbies[session.room].capacity);
+    });
+
+    socket.on('chat_message', function(msg){
+        io.to(session.room).emit('chat_message', 'speech', msg, session.color);
         lobbies[session.room].log.push(['speech', msg, session.color]);
         if (lobbies[session.room].log.length > 10) {
             lobbies[session.room].log.splice(0, 1);
@@ -10,10 +15,10 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors) {
     socket.on('make_lobby', function(info){
         lobbies.counter += 1;
         if ((info.lobby_pwd == '') || (info.lobby_pwd == undefined)) {
-            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, free_colors: colors, log: []}; //create lobby without pwd
+            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, ready: 0, free_colors: colors, log: [], has_pwd: false}; //create lobby without pwd
         }
         else {
-            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, free_colors: colors, log: [], has_pwd: true}; //create lobby with pwd
+            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, ready: 0, free_colors: colors, log: [], has_pwd: true}; //create lobby with pwd
             lobby_pwds[String(lobbies.counter)] = info.lobby_pwd;
         }
         session.room = String(lobbies.counter);
@@ -65,7 +70,7 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors) {
             lobbies[session.room].log.splice(0, 1);
         }
         socket.emit('lobby_info', {lobby_name: session.lobby, log: lobbies[session.room].log.slice(0, -1), room: session.room});
-        io.to(session.room).emit('chat message', 'system', session.color + ' logged in.', 'white');
+        io.to(session.room).emit('chat_message', 'system', session.color + ' logged in.', 'white');
         io.emit('lobby_list', lobbies); //update people looking at lobby list
     });
 
@@ -73,7 +78,7 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors) {
         //socket.leave(session.room); //might not be neccessary
         lobbies[session.room].occupants -= 1;
         lobbies[session.room].free_colors.push(session.color);
-        io.to(session.room).emit('chat message', 'system', session.color + ' logged out.', 'white');
+        io.to(session.room).emit('chat_message', 'system', session.color + ' logged out.', 'white');
         if (lobbies[session.room].log.length > 10) {
             lobbies[session.room].log.splice(0, 1);
         }

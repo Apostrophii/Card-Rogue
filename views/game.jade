@@ -7,6 +7,10 @@ html
         include ./includes/card.js
     script.
         $(document).ready(function() {
+            checkOrientation(); //check if the users is in portrait or landscape mode
+            window.addEventListener('orientationchange', function() {
+                location.reload(true);
+            });
             MAXWIDTH = 1500;
             MAXHEIGHT = 1000;
             WIDTH = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
@@ -28,6 +32,12 @@ html
             queue.on("complete", handleComplete, this);
             loadImage(); //for testing purposes
         });
+        function checkOrientation() {
+            if (window.innerHeight > window.innerWidth) {
+                alert("Please use landscape mode!");
+                document.getElementById("gameCanvas").style.display = 'none';
+            }
+        }
         function loadImage() {
             queue.loadFile({id: 'testcard_front', src: 'images/sync/basic_card.front.png'});
             queue.loadFile({id: 'testcard_back', src: 'images/sync/basic_card.back.png'});

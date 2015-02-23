@@ -5,6 +5,7 @@ html
         script.
             $(document).ready(function() {
                 socket.emit('enter_lobby')
+                socket.emit('player_ready', 0);
                 var posts = 0;
                 socket.on('lobby_info', function(info){
                     if (info.room == '0') {
@@ -27,7 +28,7 @@ html
                 $('form').keypress(function(event){
                     if (event.keyCode == 13) {
                         if ($('#m').val() !== '') {
-                            socket.emit('chat message', $('#m').val());
+                            socket.emit('chat_message', $('#m').val());
                         }
                         $('#m').val('');
                         return false;
@@ -35,7 +36,7 @@ html
                 });
                 var audioTag = new Audio('audio/drrr.mp3');
                 //audioTag.load();
-                socket.on('chat message', function(type, msg, color){
+                socket.on('chat_message', function(type, msg, color){
                     posts += 1;
                     if (type == 'speech') {
                         $('#messages').prepend($('<br>'));
@@ -64,20 +65,30 @@ html
                     }
                     */
                 });
-                $('#ready_button').click(function() {
+                $('#ready_button').click(function() { //for when the user clicks the ready button
                     $(this).text(function(i, text){
                         if (text == 'ready?') {
-                            $(this).css('background-color', 'lime');
+                            socket.emit('player_ready', 1); //add ready player
                             return 'READY!';
                         }
                         else {
-                            $(this).css('background-color', 'black');
+                            socket.emit('player_ready', -1); //remove ready player
                             return 'ready?'
                         }
                     });
                 });
-                $(window).bind('beforeunload', function(){
+                socket.on('ready_count', function(num, max) { //get new number of ready players
+                    var percent = String(100 * num / max);
+                    $('#ready_button').css("background", "linear-gradient(to right, lime " + percent + "%, black " + percent + "%)"); 
+                    if (num == max) {
+                        window.location.href = "http://cs.wallawalla.edu/cr/game";
+                    }
+                });
+                $(window).bind('beforeunload', function(){ //CHANGE THIS
                     socket.emit('leave_lobby');
+                    if ($('#ready_button').text == 'READY!') { //remove player from ready list if they were on it
+                        socket.emit('player_ready', -1);
+                    }
                 });
             });
         style

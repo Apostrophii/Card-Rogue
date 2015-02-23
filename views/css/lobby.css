@@ -26,9 +26,14 @@ button {
     width: 120px;
     height: 1.7em;
     cursor: pointer;
-    margin-left: 231px;
     margin-bottom: 10px;
     background-color: black;
+}
+.center {
+    text-align: center;
+}
+#ready_button {
+    background: linear-gradient(to right, lime 0%, black 0%);
 }
 #lobby_name {
     text-align: center;
