@@ -1,9 +1,9 @@
-module.exports = function(socket, session, io, lobbies, lobby_pwds, colors) {
+module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, games) {
     socket.on('player_ready', function(num) {
         lobbies[session.room].ready += num;
         if (lobbies[session.room].ready >= lobbies[session.room].capacity) { //create new game object here
-            //games[session.room] = {};
-            io.to(session.room).emit('log', session);
+            games[session.room] = {last_update: Date.now(), player_states: {}};
+            //io.to(session.room).emit('log', session);
         }
         io.to(session.room).emit('ready_count', lobbies[session.room].ready, lobbies[session.room].capacity);
     });

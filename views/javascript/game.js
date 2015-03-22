@@ -53,4 +53,5 @@ socket.on('log', function(message) {
     console.log(message);
 });
 socket.on('char_select_state', function(params) {
+    console.log("CHAR_SELECT");
 });
