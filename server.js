@@ -53,6 +53,7 @@ sessionSockets.on('connection', function(err, socket, session){
 
     //pull in the different components
     require('./components/lobby_system.js')(socket, session, io, lobbies, lobby_pwds, colors);
+    require('./components/game_system.js')(socket, session, io, lobbies, lobby_pwds, colors);
 
     socket.on('disconnect', function(){
         console.log('socket disconnected');
