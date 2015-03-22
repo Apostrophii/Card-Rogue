@@ -46,6 +46,9 @@ var colors = ['purple', 'yellow', 'blue', 'green', 'red', 'gray'];
 lobbies['0'] = {name: "empty room", occupants: 0, capacity: 6, free_colors: colors, log: [], has_pwd: false}; //default lobby
 var lobby_pwds = {'0': ''};
 
+//Constructs for games system
+var games = {};
+
 sessionSockets.on('connection', function(err, socket, session){
     console.log('\nsocket connected');
     //console.log(session);
