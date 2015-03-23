@@ -54,4 +54,10 @@ socket.on('log', function(message) {
 });
 socket.on('char_select_state', function(params) {
     console.log("CHAR_SELECT");
+    console.log(params.races);
+    var div = document.createElement("div");
+    div.setAttribute("id", "selection");
+    div.innerHTML = "<div id='inner-selection'>TESTING 1 2 3</div>";
+    document.getElementById("screen").appendChild(div);
+    socket.emit(params.callback);
 });
