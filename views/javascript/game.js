@@ -18,6 +18,9 @@ $(document).ready(function() {
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
     stage = new createjs.Stage('gameCanvas');
+    document.getElementById("inner-selection").style.width = String(1000 * RATIO) + "px";
+    document.getElementById("selection").style.fontSize = String(25 * RATIO) + "px";
+    document.getElementById("selection").style.display = 'none';
     createjs.Ticker.setFPS(60);
     createjs.Ticker.addEventListener('tick', stage);
     queue = new createjs.LoadQueue(true);
@@ -53,11 +56,63 @@ socket.on('log', function(message) {
     console.log(message);
 });
 socket.on('char_select_state', function(params) {
-    console.log("CHAR_SELECT");
-    console.log(params.races);
-    var div = document.createElement("div");
-    div.setAttribute("id", "selection");
-    div.innerHTML = "<div id='inner-selection'>TESTING 1 2 3</div>";
-    document.getElementById("screen").appendChild(div);
-    socket.emit(params.callback);
+    RACE = null;
+    var inner = document.getElementById("inner-selection");
+    var title = document.createElement("p");
+    var p1 = document.createElement("p");
+    var input = document.createElement("input");
+    var p2 = document.createElement("p");
+    var ul = document.createElement("ul");
+    var conf = document.createElement("p");
+    title.innerHTML = "CHARACTER CREATION";
+    p1.innerHTML = "NAME:";
+    p2.innerHTML = "RACE:";
+    conf.innerHTML = "CONFIRM";
+    input.setAttribute("type", "text");
+    input.setAttribute("autofocus", "autofocus");
+    input.setAttribute("maxlength", "15");
+    input.setAttribute("size", "15");
+    input.setAttribute("id", "name-select");
+    p1.setAttribute("id", "name-label");
+    p2.setAttribute("id", "race-label");
+    conf.setAttribute("id", "confirm-select");
+    title.setAttribute("id", "title-select");
+    inner.appendChild(title);
+    inner.appendChild(p1);
+    inner.appendChild(input);
+    inner.appendChild(p2);
+    inner.appendChild(ul);
+    inner.appendChild(conf);
+    for (var i = 0; i < params.races.length; i++) { //list all the races and give them selection behavior
+        var li = document.createElement("li");
+        ul.appendChild(li);
+        li.innerHTML += String(params.races[i]);
+        li.onclick = function() {
+            RACE = this.innerHTML;
+            console.log(RACE);
+            $("#inner-selection li").each(function() {
+                $(this).removeClass("selected-race");
+            });
+            this.setAttribute("class", "selected-race");
+        }
+    }
+    conf.onclick = function() { //confirmation
+        var error = false;
+        $('#race-label').removeClass("error-data");
+        $('#name-label').removeClass("error-data");
+        if (RACE == null) {
+            error = true;
+            $('#race-label').addClass("error-data");
+        }
+        if (input.value == '') {
+            error = true;
+            $('#name-label').addClass("error-data");
+        } 
+        if (error == false) {
+            var data = {race: RACE, name: input.value};
+            socket.emit(params.callback, data);
+            console.log(data);
+        }
+    }
+    document.getElementById("selection").style.display = 'block';
 });
