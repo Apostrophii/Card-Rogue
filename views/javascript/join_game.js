@@ -1,3 +1,4 @@
+socket.emit('clear_user_info');
 socket.emit('get_lobbies');
 $(document).ready(function() {
     socket.on('lobby_list', function(lobbies){
@@ -6,7 +7,7 @@ $(document).ready(function() {
         for (var lobby in lobbies) {
             if (lobbies.hasOwnProperty(lobby)) {
                 if ((lobby !== '0') && (lobby !== 'counter')) { //not the main lobby
-                    if (lobbies[lobby].occupants < lobbies[lobby].capacity) { //not over capacity
+                    if (lobbies[lobby].occupants < lobbies[lobby].capacity && !lobbies[lobby].ingame) { //not over capacity or in game
                         displayed_num += 1;
                         if (lobbies[lobby].has_pwd) { //has a password on this lobby?
                             $('#lobbies').append($('<li>').append(lobbies[lobby].name + '<br>').append($('<button>', {

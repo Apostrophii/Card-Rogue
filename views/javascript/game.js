@@ -26,18 +26,22 @@ $(document).ready(function() {
     queue = new createjs.LoadQueue(true);
     queue.on("complete", handleComplete, this);
     //loadImage(); //for testing purposes
+    socket.emit('join_room'); //very important
     socket.emit('get_cur_state');
 }); 
+
 function checkOrientation() {
     if (window.innerHeight > window.innerWidth) {
         alert("Please use landscape mode!");
         document.getElementById("screen").style.display = 'none';
     }   
 }   
+
 function loadImage() {
     queue.loadFile({id: 'testcard_front', src: 'images/sync/basic_card.front.png'});
     queue.loadFile({id: 'testcard_back', src: 'images/sync/basic_card.back.png'});
 }   
+
 function handleComplete() {
     var testcard_front = queue.getResult('testcard_front');
     var testcard_back = queue.getResult('testcard_back');
@@ -52,9 +56,11 @@ function handleComplete() {
     card1.move(250 * RATIO, 250 * RATIO, 800 * RATIO, 250 * RATIO, 1000, 2000);
     card1.flip(1000, 3000);
 }
+
 socket.on('log', function(message) {
     console.log(message);
 });
+
 socket.on('char_select_state', function(params) {
     RACE = null;
     var inner = document.getElementById("inner-selection");
@@ -89,7 +95,6 @@ socket.on('char_select_state', function(params) {
         li.innerHTML += String(params.races[i]);
         li.onclick = function() {
             RACE = this.innerHTML;
-            console.log(RACE);
             $("#inner-selection li").each(function() {
                 $(this).removeClass("selected-race");
             });
@@ -110,9 +115,15 @@ socket.on('char_select_state', function(params) {
         } 
         if (error == false) {
             var data = {race: RACE, name: input.value};
+            $('#inner-selection').empty(); //get rid of selection menu
+            document.getElementById("selection").style.display = 'none';
             socket.emit(params.callback, data);
-            console.log(data);
         }
     }
     document.getElementById("selection").style.display = 'block';
+});
+
+socket.on('seek_next', function() {
+    console.log("SEEKING");
+    socket.emit('get_cur_state');
 });

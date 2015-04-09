@@ -74,17 +74,22 @@ $(document).ready(function() {
     });
     socket.on('ready_count', function(num, max) { //get new number of ready players
         var percent = String(100 * num / max);
+        if (percent == '0') {
+            percent = '1';
+        }
         $('#ready_button').css("background", "linear-gradient(to right, lime " + percent + "%, black " + percent + "%)"); 
         if (num == max) {
             window.location.href = "http://cs.wallawalla.edu/cr/game";
         }
     });
+    /*
     $(window).bind('beforeunload', function(){ //CHANGE THIS
         socket.emit('leave_lobby');
         if ($('#ready_button').text == 'READY!') { //remove player from ready list if they were on it
             socket.emit('player_ready', -1);
         }
     });
+    */
     socket.on('log', function(message) {
         console.log(message);
     });
