@@ -10,7 +10,7 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, game
         if (lobbies[session.room].ready >= lobbies[session.room].capacity) { //create new game object here
             if (lobbies[session.room].ingame != true) {
                 lobbies[session.room].ingame = true;
-                games[session.room] = {last_update: Date.now(), players: {}, player_count: lobbies[session.room].capacity, ready_count: 0};
+                games[session.room] = {last_update: Date.now(), players: {}, player_count: lobbies[session.room].capacity, ready_count: 0, deck_size: 5};
             }
         }
         io.to(session.room).emit('ready_count', lobbies[session.room].ready, lobbies[session.room].capacity);

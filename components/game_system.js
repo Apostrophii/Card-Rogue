@@ -16,7 +16,7 @@ module.exports = function(socket, session, io, lobbies, games) {
         if (!session.color) { //remember to set color to null at the end of the game
             session.color = 'silver';
             session.save();
-            games[session.room] = {last_update: Date.now(), players: {}, player_count: 1, ready_count: 0}; //single player game set up
+            games[session.room] = {last_update: Date.now(), players: {}, player_count: 1, ready_count: 0, deck_size: 5}; //single player game set up
         }
         if (!games[session.room].players[session.color]) { //set up each player in the game
             games[session.room].players[session.color] = {};
@@ -40,5 +40,10 @@ module.exports = function(socket, session, io, lobbies, games) {
         } else {
             waiting_state(socket, session, io, games[session.room]); //send to waiting state
         }
+    });
+
+    socket.on('draw_card_callback', function() {
+        console.log("DREW CARD");
+        io.to(session.room).emit('log', 'DISPLAYING CARD');
     });
 }

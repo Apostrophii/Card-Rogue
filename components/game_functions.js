@@ -5,12 +5,12 @@ module.exports = function() {
     }
 
     waiting_state = function(socket, session, io, game) {
-        console.log(session.color, "NOW IN WAITING");
+        console.log(session.color, "NOW WAITING");
         socket.emit("log", "WAITING IN " + String(session.room));
     }
 
     draw_card_state = function(socket, session, io, game) {
-        console.log(session.color, "NOW IN DRAWING");
-        socket.emit("log", "DRAWING CARD");
+        console.log(session.color, "NOW DRAWING");
+        socket.emit('draw_card_state', {callback: 'draw_card_callback', deck_size: game.deck_size});
     }
 }

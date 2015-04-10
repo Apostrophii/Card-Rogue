@@ -29,6 +29,14 @@ function Card(stage, front, back) {
         createjs.Tween.get(this.card).wait(delay, true).to({x: x1, y: y1}, 0).to({x: x2, y: y2}, time);
     }
 
+    this.rotate = function(r1, r2, time, delay) {
+        createjs.Tween.get(this.card).wait(delay, true).to({rotation: r1}, 0).to({rotation: r2}, time);
+    }
+
+    this.scale = function(s1, s2, time, delay) {
+        createjs.Tween.get(this.card).wait(delay, true).to({scaleX: s1, scaleY: s1}, 0).to({scaleX: s2, scaleY: s2}, time);
+    }
+
     this.flip = function(time, delay) {
         if (this.faceUp) {
             this.faceUp = false;

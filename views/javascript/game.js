@@ -3,7 +3,7 @@ $(document).ready(function() {
     window.addEventListener('orientationchange', function() {
         location.reload(true);
     }); 
-    MAXWIDTH = 1500;
+    MAXWIDTH = 1500; //this is our official ratio
     MAXHEIGHT = 1000;
     WIDTH = Math.max(document.documentElement.clientWidth, window.innerWidth || 0); 
     HEIGHT = Math.max(document.documentElement.clientHeight, window.innerHeight || 0); 
@@ -13,19 +13,19 @@ $(document).ready(function() {
     if (HEIGHT > MAXHEIGHT) {
         HEIGHT = MAXHEIGHT;
     }   
-    RATIO = WIDTH / MAXWIDTH;
+    RATIO = WIDTH / MAXWIDTH; //set game ratio based on screen width
     canvas = document.getElementById("gameCanvas");
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
-    stage = new createjs.Stage('gameCanvas');
-    document.getElementById("inner-selection").style.width = String(1000 * RATIO) + "px";
+    STAGE = new createjs.Stage('gameCanvas');
+    document.getElementById("inner-selection").style.width = String(1000 * RATIO) + "px"; //some initial styling based on our ratio
     document.getElementById("selection").style.fontSize = String(25 * RATIO) + "px";
-    document.getElementById("selection").style.display = 'none';
-    createjs.Ticker.setFPS(60);
-    createjs.Ticker.addEventListener('tick', stage);
-    queue = new createjs.LoadQueue(true);
-    queue.on("complete", handleComplete, this);
-    //loadImage(); //for testing purposes
+    document.getElementById("selection").style.display = 'none'; //and hide it for starters
+    createjs.Ticker.setFPS(60); //frames per second
+    createjs.Ticker.addEventListener('tick', STAGE);
+    initial_queue = new createjs.LoadQueue(true); //create a queue for any media we want to dynamically upload
+    initial_queue.on("complete", handleComplete, this); //what to call when everything in the queue is downloaded
+    load_initial_images(); //get our initial images
     socket.emit('join_room'); //very important
     socket.emit('get_cur_state');
 }); 
@@ -37,28 +37,34 @@ function checkOrientation() {
     }   
 }   
 
-function loadImage() {
-    queue.loadFile({id: 'testcard_front', src: 'images/sync/basic_card.front.png'});
-    queue.loadFile({id: 'testcard_back', src: 'images/sync/basic_card.back.png'});
+function load_initial_images() {
+    initial_queue.loadFile({id: 'cardfront_basic', src: 'images/sync/basic_card.front.png'});
+    initial_queue.loadFile({id: 'cardback_basic', src: 'images/sync/basic_card.back.png'});
 }   
 
 function handleComplete() {
-    var testcard_front = queue.getResult('testcard_front');
-    var testcard_back = queue.getResult('testcard_back');
-    var sample_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    card1 = new Card(stage, testcard_front, testcard_back);
+    CARDFRONT_BASIC = initial_queue.getResult('cardfront_basic');
+    CARDBACK_BASIC = initial_queue.getResult('cardback_basic');
+    sample_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    /* // this was for testing earier
+    card1 = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
     card1.addElem("center", sample_text);
     card1.updateElem("center", {color: "#00CC00"});
     card1.addElem("top", "testing 1 2 3");
-
     card1.move(-250 * RATIO, 250 * RATIO, 250 * RATIO, 250 * RATIO, 1000, 0); 
     card1.flip(1000, 1000);
     card1.move(250 * RATIO, 250 * RATIO, 800 * RATIO, 250 * RATIO, 1000, 2000);
     card1.flip(1000, 3000);
+    */
 }
 
 socket.on('log', function(message) {
     console.log(message);
+});
+
+socket.on('seek_next', function() {
+    console.log("SEEKING");
+    socket.emit('get_cur_state');
 });
 
 socket.on('char_select_state', function(params) {
@@ -123,7 +129,17 @@ socket.on('char_select_state', function(params) {
     document.getElementById("selection").style.display = 'block';
 });
 
-socket.on('seek_next', function() {
-    console.log("SEEKING");
-    socket.emit('get_cur_state');
+socket.on('draw_card_state', function(params) {
+    //socket.emit(params.callback);
+    DECK = [];
+    for (var i = 0; i < params.deck_size; i++) {
+        DECK[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+        DECK[i].addElem("center", 'CARD FRONT'); //for testing which side is the front
+        DECK[i].flip(0, 0);
+        DECK[i].rotate(0, -90, 0, 0);
+        DECK[i].move(750 * RATIO, -250 * RATIO, 750 * RATIO, 300 * RATIO + (i * -5), 1000, 0);
+    }
+    DECK[params.deck_size - 1].card.addEventListener("click", function (event) {
+        console.log("CLICKED THE TOP CARD");
+    });
 });
