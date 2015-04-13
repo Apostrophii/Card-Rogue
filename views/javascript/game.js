@@ -15,11 +15,12 @@ $(document).ready(function() {
     }   
     RATIO = WIDTH / MAXWIDTH; //set game ratio based on screen width
     HEIGHT_RATIO = HEIGHT / MAXHEIGHT;
+    EDGE_OFFSET = 50 * RATIO;
     canvas = document.getElementById("gameCanvas");
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
     STAGE = new createjs.Stage('gameCanvas');
-    DECK = [];
+    DECK = PLAYERS = [];
     CUR_CARD = null;
     document.getElementById("inner-selection").style.width = String(1000 * RATIO) + "px"; //some initial styling based on our ratio
     document.getElementById("selection").style.fontSize = String(25 * RATIO) + "px";
@@ -128,6 +129,13 @@ clearDeck = function() {
     DECK = null;
 }
 
+clearPlayers = function() {
+    for (var i = 0; i < PLAYERS.length; i++) {
+        PLAYERS[i].card.removeAllChildren();
+    }
+    PLAYERS = null;
+}
+
 socket.on('draw_card_state', function(params) {
     if (CUR_CARD) {
         CUR_CARD.card.removeAllChildren();
@@ -136,13 +144,11 @@ socket.on('draw_card_state', function(params) {
     DECK = [];
     for (var i = 0; i < params.deck_size; i++) {
         DECK[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
-        DECK[i].addElem("center", 'CARD FRONT'); //for testing which side is the front
         DECK[i].flip(0, 0);
         DECK[i].rotate(0, -90, 0, 0);
-        DECK[i].move(750 * RATIO, -250 * RATIO, 750 * RATIO, (HEIGHT / 2) + ((params.deck_size - 1) * 5) - (i * 5), 1000, 0);
+        DECK[i].move(750 * RATIO, -250 * RATIO, 750 * RATIO, (HEIGHT / 2) + ((params.deck_size - 1) * 5) - (i * 5), 400, i * 100);
     }
     DECK[params.deck_size - 1].card.addEventListener("click", function (event) {
-        console.log("CLICKED THE TOP CARD");
         socket.emit(params.callback);
     });
 });
@@ -154,13 +160,27 @@ socket.on('info_card', function(params) {
     CUR_CARD.flip(0, 0);
     CUR_CARD.rotate(0, -90, 0, 0);
     CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
-    CUR_CARD.rotate(-90, 0, 500, 0);
-    CUR_CARD.flip(500, 500);
-    CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 500, 1000);
+    CUR_CARD.rotate(-90, 0, 400, 0);
+    CUR_CARD.flip(400, 400);
+    CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
     clearDeck();
     if (params.callback) {
         CUR_CARD.card.addEventListener("click", function (event) {
             socket.emit(params.callback);
         });
+    }
+});
+
+socket.on('update_player_cards', function(players) {
+    clearPlayers();
+    PLAYERS = [];
+    var offset = (WIDTH - (EDGE_OFFSET * 2)) / (Object.keys(players).length + 1)
+    var counter = 0;
+    for (var i in players) {
+        PLAYERS[counter] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+        PLAYERS[counter].addElem("top", players[i].name + "\nrace: " + players[i].race);
+        console.log(players[i]);
+        PLAYERS[counter].move(0, 0, EDGE_OFFSET + ((counter + 1) * offset), 1150 * HEIGHT_RATIO, 0, 0);
+        counter += 1;
     }
 });

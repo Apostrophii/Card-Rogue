@@ -25,10 +25,13 @@ module.exports = function(socket, session, io, lobbies, games) {
     });
 
     socket.on('char_select_callback', function(params) {
+        games[session.room].players[session.color].name = params.name;
+        games[session.room].players[session.color].race = params.race;
         games[session.room].players[session.color].state = "waiting_state";
         games[session.room].ready_count += 1;
         console.log("READY COUNT:", games[session.room].ready_count);
         console.log("PLAYER COUNT:", games[session.room].player_count);
+        io.to(session.room).emit('update_player_cards', games[session.room].players); // update player card info
         if (games[session.room].ready_count == games[session.room].player_count) {
             for (var key in games[session.room].players) {
                 games[session.room].players[key].state = "draw_card_state"; //wake up players / first real state
@@ -42,7 +45,7 @@ module.exports = function(socket, session, io, lobbies, games) {
 
     socket.on('draw_card_callback', function() {
         console.log("DREW CARD");
-        if (games[session.room].deck.length > 0) {
+        if (games[session.room].deck_size > 1) { // else go to last card //TODO: change this to 0
             var index = Math.floor(Math.random() * games[session.room].deck.length); //get random index in the deck
             for (var key in games[session.room].players) {
                 games[session.room].players[key].state = games[session.room].deck[index]; 
@@ -58,6 +61,7 @@ module.exports = function(socket, session, io, lobbies, games) {
 
     socket.on('finished_card', function() {
         console.log("FINISHED CARD");
+        games[session.room].deck_size -= 1;
         for (var key in games[session.room].players) {
             games[session.room].players[key].state = "draw_card_state";
         }

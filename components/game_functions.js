@@ -12,6 +12,7 @@ module.exports = function() {
     draw_card_state = function(socket, session, io, game) {
         console.log(session.color, "NOW DRAWING");
         socket.emit('draw_card_state', {callback: 'draw_card_callback', deck_size: game.deck_size});
+        io.to(session.room).emit('update_player_cards', game.players); // update player card info
     }
 
     test_card1 = function(socket, session, io, game) {
@@ -24,6 +25,14 @@ module.exports = function() {
 
     test_card3 = function(socket, session, io, game) {
         socket.emit('info_card', {callback: 'finished_card', title: '49', text: 'but what was the question...'});
+    }
+
+    test_card4 = function(socket, session, io, game) {
+        socket.emit('info_card', {callback: 'finished_card', title: 'it', text: 'was\na\ndark\nand\nstormy\nnight'});
+    }
+
+    test_card5 = function(socket, session, io, game) {
+        socket.emit('info_card', {callback: 'finished_card', title: 'it was\na bright\ncold day\nin april', text: 'and the clocks were striking thirteen'});
     }
 
     last_card = function(socket, session, io, game) {
