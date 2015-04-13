@@ -1,4 +1,6 @@
 module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, games) {
+    STANDARD_DECK = ['test_card1', 'test_card2', 'test_card3'];
+
     socket.on('clear_user_info', function() {
         session.color = undefined;
         session.room = undefined;
@@ -10,7 +12,8 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, game
         if (lobbies[session.room].ready >= lobbies[session.room].capacity) { //create new game object here
             if (lobbies[session.room].ingame != true) {
                 lobbies[session.room].ingame = true;
-                games[session.room] = {last_update: Date.now(), players: {}, player_count: lobbies[session.room].capacity, ready_count: 0, deck_size: 5};
+                games[session.room] = {last_update: Date.now(), players: {}, player_count: lobbies[session.room].capacity, ready_count: 0, deck_size: 5, deck: STANDARD_DECK, 
+                                       current_card: undefined};
             }
         }
         io.to(session.room).emit('ready_count', lobbies[session.room].ready, lobbies[session.room].capacity);

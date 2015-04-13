@@ -1,12 +1,10 @@
 module.exports = function(socket, session, io, lobbies, games) {
-    var game_counter = -100;
-
     socket.on('join_room', function() {
         if (session.room) {
             socket.join(session.room); //rejoin lobby room (quite important)
         } else { //single player
-            session.room = String(game_counter);
-            game_counter -= 1;
+            lobbies.counter += 1; //increment first
+            session.room = String(lobbies.counter);
             session.save();
             socket.join(session.room); //rejoin lobby room (quite important)
         }
@@ -16,7 +14,7 @@ module.exports = function(socket, session, io, lobbies, games) {
         if (!session.color) { //remember to set color to null at the end of the game
             session.color = 'silver';
             session.save();
-            games[session.room] = {last_update: Date.now(), players: {}, player_count: 1, ready_count: 0, deck_size: 5}; //single player game set up
+            games[session.room] = {last_update: Date.now(), players: {}, player_count: 1, ready_count: 0, deck_size: 5, deck: STANDARD_DECK, current_card: undefined}; //single player game set up
         }
         if (!games[session.room].players[session.color]) { //set up each player in the game
             games[session.room].players[session.color] = {};
@@ -44,6 +42,25 @@ module.exports = function(socket, session, io, lobbies, games) {
 
     socket.on('draw_card_callback', function() {
         console.log("DREW CARD");
-        io.to(session.room).emit('log', 'DISPLAYING CARD');
+        if (games[session.room].deck.length > 0) {
+            var index = Math.floor(Math.random() * games[session.room].deck.length); //get random index in the deck
+            for (var key in games[session.room].players) {
+                games[session.room].players[key].state = games[session.room].deck[index]; 
+            }
+            games[session.room].deck.splice(index, 1); //remove said index from the deck
+        } else {
+            for (var key in games[session.room].players) {
+                games[session.room].players[key].state = "last_card";
+            }
+        }
+        io.to(session.room).emit('seek_next');
+    });
+
+    socket.on('finished_card', function() {
+        console.log("FINISHED CARD");
+        for (var key in games[session.room].players) {
+            games[session.room].players[key].state = "draw_card_state";
+        }
+        io.to(session.room).emit('seek_next');
     });
 }

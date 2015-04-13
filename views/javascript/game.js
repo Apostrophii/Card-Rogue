@@ -14,10 +14,13 @@ $(document).ready(function() {
         HEIGHT = MAXHEIGHT;
     }   
     RATIO = WIDTH / MAXWIDTH; //set game ratio based on screen width
+    HEIGHT_RATIO = HEIGHT / MAXHEIGHT;
     canvas = document.getElementById("gameCanvas");
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
     STAGE = new createjs.Stage('gameCanvas');
+    DECK = [];
+    CUR_CARD = null;
     document.getElementById("inner-selection").style.width = String(1000 * RATIO) + "px"; //some initial styling based on our ratio
     document.getElementById("selection").style.fontSize = String(25 * RATIO) + "px";
     document.getElementById("selection").style.display = 'none'; //and hide it for starters
@@ -26,8 +29,6 @@ $(document).ready(function() {
     initial_queue = new createjs.LoadQueue(true); //create a queue for any media we want to dynamically upload
     initial_queue.on("complete", handleComplete, this); //what to call when everything in the queue is downloaded
     load_initial_images(); //get our initial images
-    socket.emit('join_room'); //very important
-    socket.emit('get_cur_state');
 }); 
 
 function checkOrientation() {
@@ -42,20 +43,11 @@ function load_initial_images() {
     initial_queue.loadFile({id: 'cardback_basic', src: 'images/sync/basic_card.back.png'});
 }   
 
-function handleComplete() {
+function handleComplete() { //make sure these are loaded
     CARDFRONT_BASIC = initial_queue.getResult('cardfront_basic');
     CARDBACK_BASIC = initial_queue.getResult('cardback_basic');
-    sample_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    /* // this was for testing earier
-    card1 = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
-    card1.addElem("center", sample_text);
-    card1.updateElem("center", {color: "#00CC00"});
-    card1.addElem("top", "testing 1 2 3");
-    card1.move(-250 * RATIO, 250 * RATIO, 250 * RATIO, 250 * RATIO, 1000, 0); 
-    card1.flip(1000, 1000);
-    card1.move(250 * RATIO, 250 * RATIO, 800 * RATIO, 250 * RATIO, 1000, 2000);
-    card1.flip(1000, 3000);
-    */
+    socket.emit('join_room'); //very important
+    socket.emit('get_cur_state');
 }
 
 socket.on('log', function(message) {
@@ -129,17 +121,46 @@ socket.on('char_select_state', function(params) {
     document.getElementById("selection").style.display = 'block';
 });
 
+clearDeck = function() {
+    for (var i = 0; i < DECK.length; i++) {
+        DECK[i].card.removeAllChildren();
+    }
+    DECK = null;
+}
+
 socket.on('draw_card_state', function(params) {
-    //socket.emit(params.callback);
+    if (CUR_CARD) {
+        CUR_CARD.card.removeAllChildren();
+        CUR_CARD = null;
+    }
     DECK = [];
     for (var i = 0; i < params.deck_size; i++) {
         DECK[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
         DECK[i].addElem("center", 'CARD FRONT'); //for testing which side is the front
         DECK[i].flip(0, 0);
         DECK[i].rotate(0, -90, 0, 0);
-        DECK[i].move(750 * RATIO, -250 * RATIO, 750 * RATIO, 300 * RATIO + (i * -5), 1000, 0);
+        DECK[i].move(750 * RATIO, -250 * RATIO, 750 * RATIO, (HEIGHT / 2) + ((params.deck_size - 1) * 5) - (i * 5), 1000, 0);
     }
     DECK[params.deck_size - 1].card.addEventListener("click", function (event) {
         console.log("CLICKED THE TOP CARD");
+        socket.emit(params.callback);
     });
+});
+
+socket.on('info_card', function(params) {
+    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+    CUR_CARD.addElem("top", params.title);
+    CUR_CARD.addElem("center", params.text);
+    CUR_CARD.flip(0, 0);
+    CUR_CARD.rotate(0, -90, 0, 0);
+    CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
+    CUR_CARD.rotate(-90, 0, 500, 0);
+    CUR_CARD.flip(500, 500);
+    CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 500, 1000);
+    clearDeck();
+    if (params.callback) {
+        CUR_CARD.card.addEventListener("click", function (event) {
+            socket.emit(params.callback);
+        });
+    }
 });

@@ -76,7 +76,7 @@ function Card(stage, front, back) {
             this.front.addChild(child);
         } else if (preset == "top") {
             var edgeOffset = 30;
-            var child = new createjs.Text(data, "15px Arial", "#CC0000");
+            var child = new createjs.Text(data, "24px Arial", "#CC0000");
             child.name = preset;
             child.lineWidth = this.cardBounds.width - (edgeOffset * 2);
             child.textAlign = "center";
