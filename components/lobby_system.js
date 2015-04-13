@@ -57,22 +57,16 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, game
 
     socket.on('join_lobby', function(room){
         session.room = room;
-        //console.log('JOINING:', session.room);
         session.save();
     }); 
 
     socket.on('enter_lobby', function() {
+        socket.emit('log', lobbies);
+        if(session.room == undefined) { //check if the client is connnected to a room
+            session.room = '0'; //if not add them to the default room
+            session.save();
+        }   
         if (lobbies[session.room].ingame != true) { //skip if the lobby is already ingame
-            if(session.room == undefined) { //check if the client is connnected to a room
-                //console.log('undefined user entering lobby');
-                session.room = '0'; //if not add them to the default room
-                session.save();
-            }   
-            if(lobbies[session.room] == undefined) { //might consider changing this later
-                //console.log('user attempting to enter underined lobby');
-                session.room = '0';
-                session.save();
-            }   
             lobbies[session.room].occupants += 1;
             socket.join(session.room);
             session.lobby = lobbies[session.room].name;

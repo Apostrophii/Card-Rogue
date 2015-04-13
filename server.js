@@ -43,7 +43,7 @@ rClient.on('connect', function(){
 //Constructs for the lobby system
 var lobbies = {counter: 100};
 var colors = ['purple', 'yellow', 'blue', 'green', 'red', 'gray'];
-lobbies['0'] = {name: "empty room", occupants: 0, capacity: 6, free_colors: colors, log: [], has_pwd: false}; //default lobby
+lobbies['0'] = {name: "empty room", occupants: 0, capacity: 6, free_colors: colors, log: [], has_pwd: false, ingame: false}; //default lobby
 var lobby_pwds = {'0': ''};
 
 //Constructs for games system
