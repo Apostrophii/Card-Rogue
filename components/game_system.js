@@ -31,6 +31,23 @@ module.exports = function(socket, session, io, lobbies, games) {
     socket.on('char_select_callback', function(params) {
         games[session.room].players[session.color].name = params.name;
         games[session.room].players[session.color].race = params.race;
+        games[session.room].players[session.color].str = (Math.floor(Math.random() * 6) + 1);
+        games[session.room].players[session.color].dex = (Math.floor(Math.random() * 6) + 1);
+        games[session.room].players[session.color].kno = (Math.floor(Math.random() * 6) + 1);
+        games[session.room].players[session.color].wis = (Math.floor(Math.random() * 6) + 1);
+        if (params.race == 'man') { // race specific bonuses and disadvantages
+            games[session.room].players[session.color].kno += (Math.floor(Math.random() * 3) + 1);
+            games[session.room].players[session.color].wis = (Math.floor(Math.random() * 3) + 1);
+        } else if (params.race == 'elf') {
+            games[session.room].players[session.color].wis += (Math.floor(Math.random() * 3) + 1);
+            games[session.room].players[session.color].str = (Math.floor(Math.random() * 3) + 1);
+        } else if (params.race == 'hill ogre') {
+            games[session.room].players[session.color].str += (Math.floor(Math.random() * 3) + 1);
+            games[session.room].players[session.color].dex = (Math.floor(Math.random() * 3) + 1);
+        } else if (params.race == 'felid') {
+            games[session.room].players[session.color].dex += (Math.floor(Math.random() * 3) + 1);
+            games[session.room].players[session.color].kno = (Math.floor(Math.random() * 3) + 1);
+        }
         games[session.room].players[session.color].state = "waiting_state";
         games[session.room].ready_count += 1;
         console.log("READY COUNT:", games[session.room].ready_count);

@@ -45,4 +45,12 @@ module.exports = function() {
         var choices = [choice1, choice2];
         socket.emit('choice_card', {callback: null, title: 'test choice', text: 'what will you choose?', choices: choices});
     }
+
+    test_choice2 = function(socket, session, io, game) {
+        var choice1 = {callback: 'log', params: 'choice 1', text: 'left'};
+        var choice2 = {callback: 'log', params: 'choice 2', text: 'straight'};
+        var choice3 = {callback: 'log', params: 'choice 3', text: 'right'};
+        var choices = [choice1, choice2, choice3];
+        socket.emit('choice_card', {callback: null, title: 'forks\nin\nthe\nroad', text: 'which way, which way?', choices: choices});
+    }
 }

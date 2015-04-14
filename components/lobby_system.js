@@ -1,6 +1,5 @@
 module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, games) {
-    //STANDARD_DECK = ['test_card1', 'test_card2', 'test_card3', 'test_card4', 'test_choice1'];
-    STANDARD_DECK = ['test_card4', 'test_choice1', 'test_choice1', 'test_choice1'];
+    STANDARD_DECK = ['test_card2', 'test_card3', 'test_card4', 'test_card5', 'test_choice1', 'test_choice2'];
 
     socket.on('clear_user_info', function() {
         session.color = undefined;
@@ -63,7 +62,7 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, game
 
     socket.on('enter_lobby', function() {
         socket.emit('log', lobbies);
-        if(session.room == undefined) { //check if the client is connnected to a room
+        if(!session.room) { //check if the client is connnected to a room
             session.room = '0'; //if not add them to the default room
             session.save();
         }   

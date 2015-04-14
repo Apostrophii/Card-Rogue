@@ -15,7 +15,7 @@ $(document).ready(function() {
     }   
     RATIO = WIDTH / MAXWIDTH; //set game ratio based on screen width
     HEIGHT_RATIO = HEIGHT / MAXHEIGHT;
-    EDGE_OFFSET = 50 * RATIO;
+    EDGE_OFFSET = 0 * RATIO; //don't actually really need this I don't think
     canvas = document.getElementById("gameCanvas");
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
@@ -184,7 +184,12 @@ socket.on('update_player_cards', function(players) {
     var counter = 0;
     for (var i in players) {
         PLAYERS[counter] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
-        PLAYERS[counter].addElem("top", players[i].name + "\nrace: " + players[i].race);
+        if (players[i].race) {
+            var text = players[i].name + "\nthe " + players[i].race.toUpperCase() + "\nSTR: " + players[i].str + "  DEX: " + players[i].dex + "\nKNO: " + players[i].kno + "  WIS: " + players[i].wis;
+        } else { //in case the player hasn't chosen a name and race yet
+            var text = '';
+        }
+        PLAYERS[counter].addElem("top", text);
         PLAYERS[counter].move(0, 0, EDGE_OFFSET + ((counter + 1) * offset), 1150 * HEIGHT_RATIO, 0, 0);
         counter += 1;
     }
