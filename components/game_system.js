@@ -1,4 +1,8 @@
 module.exports = function(socket, session, io, lobbies, games) {
+    socket.on('log', function(message) {
+        socket.emit('log', message);
+    });
+
     socket.on('join_room', function() {
         if (session.room) {
             socket.join(session.room); //rejoin lobby room (quite important)
@@ -51,6 +55,7 @@ module.exports = function(socket, session, io, lobbies, games) {
                 games[session.room].players[key].state = games[session.room].deck[index]; 
             }
             games[session.room].deck.splice(index, 1); //remove said index from the deck
+            games[session.room].deck_size -= 1; //reduce deck size
         } else {
             for (var key in games[session.room].players) {
                 games[session.room].players[key].state = "last_card";
@@ -61,7 +66,15 @@ module.exports = function(socket, session, io, lobbies, games) {
 
     socket.on('finished_card', function() {
         console.log("FINISHED CARD");
-        games[session.room].deck_size -= 1;
+        for (var key in games[session.room].players) {
+            games[session.room].players[key].state = "draw_card_state";
+        }
+        io.to(session.room).emit('seek_next');
+    });
+
+    socket.on('clear_options_call', function() {
+        console.log("CLEARING OPTIONS");
+        io.to(session.room).emit('clear_options');
         for (var key in games[session.room].players) {
             games[session.room].players[key].state = "draw_card_state";
         }

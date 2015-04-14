@@ -16,26 +16,33 @@ module.exports = function() {
     }
 
     test_card1 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', title: 'test', text: 'this is all one big test'});
+        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'test', text: 'this is all one big test'});
     }
 
     test_card2 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', title: 'not a test', text: 'do you have any idea what this is?'});
+        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'not a test', text: 'do you have any idea what this is?'});
     }
 
     test_card3 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', title: '49', text: 'but what was the question...'});
+        socket.emit('info_card', {callback: 'finished_card', params: null, title: '49', text: 'but what was the question...'});
     }
 
     test_card4 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', title: 'it', text: 'was\na\ndark\nand\nstormy\nnight'});
+        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'it', text: 'was\na\ndark\nand\nstormy\nnight'});
     }
 
     test_card5 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', title: 'it was\na bright\ncold day\nin april', text: 'and the clocks were striking thirteen'});
+        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'it was\na bright\ncold day\nin april', text: 'and the clocks were striking thirteen'});
     }
 
     last_card = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: null, title: 'fin', text: 'you have found the end!'});
+        socket.emit('info_card', {callback: null, params: null, title: 'fin', text: 'you have found the end!'});
+    }
+
+    test_choice1 = function(socket, session, io, game) {
+        var choice1 = {callback: 'log', params: 'choice 1', text: 'option a'};
+        var choice2 = {callback: 'log', params: 'choice 2', text: 'option b'};
+        var choices = [choice1, choice2];
+        socket.emit('choice_card', {callback: null, title: 'test choice', text: 'what will you choose?', choices: choices});
     }
 }

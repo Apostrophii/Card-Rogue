@@ -20,8 +20,8 @@ $(document).ready(function() {
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
     STAGE = new createjs.Stage('gameCanvas');
-    DECK = PLAYERS = [];
-    CUR_CARD = null;
+    DECK = PLAYERS = OPTIONS = [];
+    CUR_CARD = CHOICE_PARAMS = null;
     document.getElementById("inner-selection").style.width = String(1000 * RATIO) + "px"; //some initial styling based on our ratio
     document.getElementById("selection").style.fontSize = String(25 * RATIO) + "px";
     document.getElementById("selection").style.display = 'none'; //and hide it for starters
@@ -126,14 +126,21 @@ clearDeck = function() {
     for (var i = 0; i < DECK.length; i++) {
         DECK[i].card.removeAllChildren();
     }
-    DECK = null;
+    DECK = [];
 }
 
 clearPlayers = function() {
     for (var i = 0; i < PLAYERS.length; i++) {
         PLAYERS[i].card.removeAllChildren();
     }
-    PLAYERS = null;
+    PLAYERS = [];
+}
+
+clearOptions = function() {
+    for (var i = 0; i < OPTIONS.length; i++) {
+        OPTIONS[i].card.removeAllChildren();
+    }
+    OPTIONS = [];
 }
 
 socket.on('draw_card_state', function(params) {
@@ -166,21 +173,58 @@ socket.on('info_card', function(params) {
     clearDeck();
     if (params.callback) {
         CUR_CARD.card.addEventListener("click", function (event) {
-            socket.emit(params.callback);
+            socket.emit(params.callback, params.params);
         });
     }
 });
 
 socket.on('update_player_cards', function(players) {
     clearPlayers();
-    PLAYERS = [];
-    var offset = (WIDTH - (EDGE_OFFSET * 2)) / (Object.keys(players).length + 1)
+    var offset = (WIDTH - (EDGE_OFFSET * 2)) / (Object.keys(players).length + 1);
     var counter = 0;
     for (var i in players) {
         PLAYERS[counter] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
         PLAYERS[counter].addElem("top", players[i].name + "\nrace: " + players[i].race);
-        console.log(players[i]);
         PLAYERS[counter].move(0, 0, EDGE_OFFSET + ((counter + 1) * offset), 1150 * HEIGHT_RATIO, 0, 0);
         counter += 1;
     }
+});
+
+socket.on('choice_card', function(params) {
+    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+    CUR_CARD.addElem("top", params.title);
+    CUR_CARD.addElem("center", params.text);
+    CUR_CARD.flip(0, 0);
+    CUR_CARD.rotate(0, -90, 0, 0);
+    CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
+    CUR_CARD.rotate(-90, 0, 400, 0);
+    CUR_CARD.flip(400, 400);
+    CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
+    clearDeck();
+    CHOICE_PARAMS = params.choices;
+    var handler = function(event) {
+        CUR_CARD.card.removeEventListener("click", handler); //get rid of this after the first click
+        clearOptions();
+        var offset = (WIDTH - (EDGE_OFFSET * 2)) / (CHOICE_PARAMS.length + 2);
+        CUR_CARD.scale(2.2 * HEIGHT_RATIO, 1 * RATIO, 400, 0);
+        CUR_CARD.move(750 * RATIO, HEIGHT / 2, EDGE_OFFSET + offset, HEIGHT / 2, 400, 800);
+        for (var i = 0; i < CHOICE_PARAMS.length; i++) {
+            (function (i) { //closure! since javascript only has function scope not block scope
+                OPTIONS[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+                OPTIONS[i].addElem("center", CHOICE_PARAMS[i].text);
+                OPTIONS[i].move(0, 0, EDGE_OFFSET + ((i + 2) * offset), HEIGHT / 2, 0, 1200);
+                OPTIONS[i].option_index = i;
+                OPTIONS[i].card.addEventListener("click", function (event) {
+                    socket.emit('clear_options_call');
+                    console.log(i);
+                    socket.emit(CHOICE_PARAMS[i].callback, CHOICE_PARAMS[i].params);
+                });
+            }(i))
+        }
+    }
+    CUR_CARD.card.addEventListener("click", handler);
+});
+
+socket.on('clear_options', function() {
+    clearOptions();
 });
