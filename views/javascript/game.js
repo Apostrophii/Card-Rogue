@@ -20,7 +20,7 @@ $(document).ready(function() {
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
     STAGE = new createjs.Stage('gameCanvas');
-    DECK = PLAYERS = OPTIONS = [];
+    DECK = PLAYERS = OPTIONS = ENEMIES = [];
     CUR_CARD = CHOICE_PARAMS = null;
     document.getElementById("inner-selection").style.width = String(1000 * RATIO) + "px"; //some initial styling based on our ratio
     document.getElementById("selection").style.fontSize = String(25 * RATIO) + "px";
@@ -136,6 +136,13 @@ clearPlayers = function() {
     PLAYERS = [];
 }
 
+clearEnemies = function() {
+    for (var i = 0; i < ENEMIES.length; i++) {
+        ENEMIES[i].card.removeAllChildren();
+    }
+    ENEMIES = [];
+}
+
 clearOptions = function() {
     for (var i = 0; i < OPTIONS.length; i++) {
         OPTIONS[i].card.removeAllChildren();
@@ -143,11 +150,15 @@ clearOptions = function() {
     OPTIONS = [];
 }
 
-socket.on('draw_card_state', function(params) {
+clearCur = function() {
     if (CUR_CARD) {
         CUR_CARD.card.removeAllChildren();
         CUR_CARD = null;
     }
+}
+
+socket.on('draw_card_state', function(params) {
+    clearCur();
     DECK = [];
     for (var i = 0; i < params.deck_size; i++) {
         DECK[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
@@ -185,13 +196,30 @@ socket.on('update_player_cards', function(players) {
     for (var i in players) {
         PLAYERS[counter] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
         if (players[i].race) {
-            var text = players[i].name + "\nthe " + players[i].race.toUpperCase() + "\nSTR: " + players[i].str + "  DEX: " + players[i].dex + "\nKNO: " + players[i].kno + "  WIS: " + players[i].wis;
+            var text = players[i].name + " the " + players[i].race.toUpperCase();
+            text += "\nHP: " + players[i].health + "  SP: " + players[i].speed;
+            text += "\nSTR: " + players[i].str + "  DEX: " + players[i].dex;
+            text += "\nKNO: " + players[i].kno + "  WIS: " + players[i].wis;
         } else { //in case the player hasn't chosen a name and race yet
             var text = '';
         }
         PLAYERS[counter].addElem("top", text);
         PLAYERS[counter].move(0, 0, EDGE_OFFSET + ((counter + 1) * offset), 1150 * HEIGHT_RATIO, 0, 0);
         counter += 1;
+    }
+});
+
+socket.on('update_enemy_cards', function(enemies) {
+    clearEnemies();
+    var offset = (WIDTH - (EDGE_OFFSET * 2)) / (Object.keys(enemies).length + 1);
+    for (var i = 0; i < enemies.length; i++) {
+        ENEMIES[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+        var text = enemies[i].name + " the " + enemies[i].race.toUpperCase();
+        text += "\nHP: " + enemies[i].health + "  SP: " + enemies[i].speed;
+        text += "\nSTR: " + enemies[i].str + "  DEX: " + enemies[i].dex;
+        text += "\nKNO: " + enemies[i].kno + "  WIS: " + enemies[i].wis;
+        ENEMIES[i].addElem("bottom", text);
+        ENEMIES[i].move(0, 0, EDGE_OFFSET + ((i + 1) * offset), -180 * HEIGHT_RATIO, 0, 0);
     }
 });
 
@@ -232,4 +260,49 @@ socket.on('choice_card', function(params) {
 
 socket.on('clear_options', function() {
     clearOptions();
+});
+
+socket.on('clear_current', function() {
+    clearCur();
+});
+
+socket.on('call_callback', function(callback) {
+    socket.emit(callback);
+});
+
+socket.on('battle_turn_state', function(params) {
+    console.log('battle turn state');
+});
+
+socket.on('battle_defend_state', function(params) {
+    clearCur();
+    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+    CUR_CARD.addElem("center", params.attacker + " is attacking you for " + String(params.attack) + " damage!\nDraw armor card to defend!");
+    CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
+    console.log(params.armor);
+    var handler = function(event) {
+        CUR_CARD.card.removeEventListener("click", handler); //get rid of this after the first click
+        clearOptions();
+        var offset = (WIDTH - (EDGE_OFFSET * 2)) / (params.armor.length + 2);
+        CUR_CARD.move(750 * RATIO, HEIGHT / 2, EDGE_OFFSET + offset, HEIGHT / 2, 400, 800);
+        for (var i = 0; i < params.armor.length; i++) {
+            (function (i) { //closure! since javascript only has function scope not block scope
+                OPTIONS[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+                OPTIONS[i].addElem("center", String(params.armor[i]));
+                OPTIONS[i].flip(0, 0);
+                OPTIONS[i].move(0, 0, EDGE_OFFSET + ((i + 2) * offset), HEIGHT / 2, 0, 1200);
+                OPTIONS[i].option_index = i;
+                OPTIONS[i].card.addEventListener("click", function (event) {
+                    clearOptions();
+                    console.log(params.armor[i]);
+                    socket.emit('defended_attack', params.armor[i]);
+                });
+            }(i))
+        }
+    }
+    CUR_CARD.card.addEventListener("click", handler);
+});
+
+socket.on('battle_info_state', function(info) {
+    console.log(info);
 });

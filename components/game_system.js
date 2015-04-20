@@ -29,6 +29,7 @@ module.exports = function(socket, session, io, lobbies, games) {
     });
 
     socket.on('char_select_callback', function(params) {
+        games[session.room].players[session.color].color = session.color;
         games[session.room].players[session.color].name = params.name;
         games[session.room].players[session.color].race = params.race;
         games[session.room].players[session.color].str = (Math.floor(Math.random() * 6) + 1);
@@ -48,6 +49,10 @@ module.exports = function(socket, session, io, lobbies, games) {
             games[session.room].players[session.color].dex += (Math.floor(Math.random() * 3) + 1);
             games[session.room].players[session.color].kno = (Math.floor(Math.random() * 3) + 1);
         }
+        games[session.room].players[session.color].health = 20;
+        games[session.room].players[session.color].speed = (Math.floor(Math.random() * 4) + 3);
+        games[session.room].players[session.color].weapon = {name: 'short sword', cards: [1, 2, 3, 4, 5, 6]};
+        games[session.room].players[session.color].armor = {name: 'light armor', cards: [0, 0, 1, 1, 2, 2]};
         games[session.room].players[session.color].state = "waiting_state";
         games[session.room].ready_count += 1;
         console.log("READY COUNT:", games[session.room].ready_count);
@@ -96,5 +101,76 @@ module.exports = function(socket, session, io, lobbies, games) {
             games[session.room].players[key].state = "draw_card_state";
         }
         io.to(session.room).emit('seek_next');
+    });
+
+    socket.on('next_battle_turn', function() {
+        console.log("NEXT BATTLE TURN");
+        socket.emit('clear_current') //get rid of later
+        socket.emit('update_player_cards', games[session.room].players);
+        socket.emit('update_enemy_cards', games[session.room].battle.enemies);
+        var max = {name: null, speed: 0};
+        while(max.speed < 20) {
+            for (var i = 0; i < games[session.room].battle.turns.length; i++) {
+                games[session.room].battle.turns[i].speed += 1;
+                if (games[session.room].battle.turns[i].speed > max.speed) {
+                    max.speed = games[session.room].battle.turns[i].speed;
+                    max.name = games[session.room].battle.turns[i].name;
+                }
+            }
+        }
+        console.log(max.name, "IS ATTACKING THIS TURN");
+        if (['purple', 'yellow', 'blue', 'green', 'red', 'gray', 'silver'].indexOf(max.name) != -1) { //next turn is a player's
+            for (var i in games[session.room].players) {
+                if (games[session.room].players[i].color == max.name) {
+                    games[session.room].players[i].state = "battle_turn_state";
+                    games[session.room].battle.info = games[session.room].players[i].name + "'s turn to attack!";
+                    var old_speed = games[session.room].players[i].speed;
+                } else {
+                    games[session.room].players[i].state = "battle_info_state";
+                }
+            }
+        } else { //enemy turn is next
+            for (var i in games[session.room].players) { //set all players to info state (one will be changed later)
+                games[session.room].players[i].state = "battle_info_state";
+            }
+            for (var i = 0; i < games[session.room].battle.enemies.length; i++) {
+                if (games[session.room].battle.enemies[i].name == max.name) {
+                    var old_speed = games[session.room].battle.enemies[i].speed;
+                    if (games[session.room].battle.enemies[i].pattern == 'random') { //find attack pattern
+                        var target;
+                        var count = 0;
+                        for (var prop in games[session.room].players) { //get random player
+                            if (Math.random() < 1 / ++count) {
+                                target = prop;
+                            }
+                        }
+                        games[session.room].players[target].state = "battle_defend_state";
+                        games[session.room].battle.attacker = {};
+                        games[session.room].battle.attacker.target = target;
+                        games[session.room].battle.attacker.name = games[session.room].battle.enemies[i].name;
+                        games[session.room].battle.attacker.weapon = games[session.room].battle.enemies[i].weapon;
+                        games[session.room].battle.info = games[session.room].battle.enemies[i].name + " is attacking " + games[session.room].players[target].name + "!";
+                    }
+                }
+            }
+        }
+        for (var i = 0; i < games[session.room].battle.turns.length; i++) { //reset highest speed
+            if (games[session.room].battle.turns[i].name == max.name) {
+                games[session.room].battle.turns[i].speed = old_speed;
+            }
+        }
+        io.to(session.room).emit('seek_next');
+    });
+
+    socket.on('defended_attack', function(armor) {
+        for (var i in games[session.room].players) {
+            if (games[session.room].players[i].color == games[session.room].battle.attacker.target) {
+                games[session.room].players[i].health -= games[session.room].battle.attacker.attack;
+                if (games[session.room].players[i].health < 0) {
+                    games[session.room].players[i].health = 0;
+                }
+            }
+        }
+        socket.emit('call_callback', 'next_battle_turn');
     });
 }
