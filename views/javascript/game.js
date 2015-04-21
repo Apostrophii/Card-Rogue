@@ -73,11 +73,13 @@ socket.on('char_select_state', function(params) {
     p1.innerHTML = "NAME:";
     p2.innerHTML = "RACE:";
     conf.innerHTML = "CONFIRM";
+    conf.setAttribute("autofocus", "autofocus"); //don't think this does anything
     input.setAttribute("type", "text");
-    input.setAttribute("autofocus", "autofocus");
+    //input.setAttribute("autofocus", "autofocus");
     input.setAttribute("maxlength", "15");
     input.setAttribute("size", "15");
     input.setAttribute("id", "name-select");
+    input.setAttribute("value", NAME_LIST[Math.floor(Math.random() * NAME_LIST.length)].name);
     p1.setAttribute("id", "name-label");
     p2.setAttribute("id", "race-label");
     conf.setAttribute("id", "confirm-select");
@@ -100,6 +102,9 @@ socket.on('char_select_state', function(params) {
             this.setAttribute("class", "selected-race");
         }
     }
+    var rand = Math.floor(Math.random() * params.races.length);
+    $("#inner-selection li")[rand].setAttribute("class", "selected-race");
+    RACE = params.races[rand]; //don't forget to actually set the parameter
     conf.onclick = function() { //confirmation
         var error = false;
         $('#race-label').removeClass("error-data");
@@ -292,15 +297,31 @@ socket.on('battle_defend_state', function(params) {
                 OPTIONS[i].flip(0, 0);
                 OPTIONS[i].move(0, 0, EDGE_OFFSET + ((i + 2) * offset), HEIGHT / 2, 0, 1200);
                 OPTIONS[i].option_index = i;
-                OPTIONS[i].card.addEventListener("click", function (event) {
-                    clearOptions();
-                    console.log(params.armor[i]);
-                    socket.emit('defended_attack', params.armor[i]);
-                });
+                var inner_handler = function(event) {
+                    for (var j = 0; j < OPTIONS.length; j++) { //remove this on click
+                        if (j == i) {
+                            OPTIONS[j].card.removeEventListener("click", inner_handler);
+                        } else {
+                            OPTIONS[j].card.removeAllChildren(); //should I set it to null too?
+                        }
+                    }
+                    OPTIONS[i].flip(300, 0);
+                    setTimeout(function() { //delay before continuing
+                        OPTIONS[i].card.removeAllChildren(); //remove this card
+                        console.log(params.armor[i]);
+                        socket.emit('defended_attack', params.armor[i]);
+                    }, 3000);
+                }
+                OPTIONS[i].card.addEventListener("click", inner_handler);
             }(i))
         }
     }
     CUR_CARD.card.addEventListener("click", handler);
+    setTimeout(function() {
+        var event = document.createEvent("HTMLEvents");
+        event.initEvent("click", true, true);
+        CUR_CARD.card.dispatchEvent(event);
+    }, 4000);
 });
 
 socket.on('battle_info_state', function(info) {
