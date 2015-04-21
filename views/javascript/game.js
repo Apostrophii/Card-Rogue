@@ -251,7 +251,6 @@ socket.on('choice_card', function(params) {
                 OPTIONS[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
                 OPTIONS[i].addElem("center", CHOICE_PARAMS[i].text);
                 OPTIONS[i].move(0, 0, EDGE_OFFSET + ((i + 2) * offset), HEIGHT / 2, 0, 1200);
-                OPTIONS[i].option_index = i;
                 OPTIONS[i].card.addEventListener("click", function (event) {
                     socket.emit('clear_options_call');
                     console.log(i);
@@ -276,7 +275,93 @@ socket.on('call_callback', function(callback) {
 });
 
 socket.on('battle_turn_state', function(params) {
-    console.log('battle turn state');
+    var enemy_nums = [];
+    for (var i = 0; i < params.enemies.length; i++) { // compile a list of living enemies
+        if (params.enemies[i].alive) {
+            enemy_nums.push(i);
+        }
+    }
+    clearCur();
+    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+    CUR_CARD.addElem("center", "Your turn to attack!\nChoose target!");
+    CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
+    var handler = function(event) {
+        CUR_CARD.card.removeEventListener("click", handler); //get rid of this after the first click
+        clearOptions();
+        var offset = (WIDTH - (EDGE_OFFSET * 2)) / (enemy_nums.length + 2); 
+        CUR_CARD.move(750 * RATIO, HEIGHT / 2, EDGE_OFFSET + offset, HEIGHT / 2, 400, 800);
+        for (var i = 0; i < enemy_nums.length; i++) {
+            (function (i) { //closure! since javascript only has function scope not block scope
+                OPTIONS[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+                OPTIONS[i].addElem("center", String(params.enemies[enemy_nums[i]].name));
+                OPTIONS[i].move(0, 0, EDGE_OFFSET + ((i + 2) * offset), HEIGHT / 2, 0, 1200);
+                var inner_handler = function(event) {
+                    for (var j = 0; j < OPTIONS.length; j++) { //remove this on click
+                        if (j == i) {
+                            OPTIONS[j].card.removeEventListener("click", inner_handler);
+                        } else {
+                            OPTIONS[j].card.removeAllChildren(); //should I set it to null too?
+                        }
+                    }
+                    //OPTIONS[i].flip(300, 0);
+                    setTimeout(function() { //delay before continuing //this has no time set now
+                        OPTIONS[i].card.removeAllChildren(); //remove this card
+                        socket.emit('attacking_target', params.enemies[enemy_nums[i]].name);
+                    }, 0);
+                }
+                OPTIONS[i].card.addEventListener("click", inner_handler);
+            }(i))
+        }
+    }
+    CUR_CARD.card.addEventListener("click", handler);
+    setTimeout(function() {
+        var event = document.createEvent("HTMLEvents");
+        event.initEvent("click", true, true);
+        CUR_CARD.card.dispatchEvent(event);
+    }, 3000);
+});
+
+socket.on('draw_attack_damage', function(params) {
+    console.log(params.weapon);
+    CUR_CARD.addElem("center", "Draw " + params.weapon_name + " card to damage against " + params.enemy + "'s " + params.armor_name + ":");
+    clearOptions();
+    var offset = (WIDTH - (EDGE_OFFSET * 2)) / (params.weapon.length + 2); 
+    for (var i = 0; i < params.weapon.length; i++) {
+        (function (i) { //closure! since javascript only has function scope not block scope
+            OPTIONS[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+            OPTIONS[i].addElem("center", String(params.weapon[i]));
+            OPTIONS[i].flip(0, 0);
+            OPTIONS[i].move(0, 0, EDGE_OFFSET + ((i + 2) * offset), HEIGHT / 2, 0, 1200);
+            var inner_handler = function(event) {
+                for (var j = 0; j < OPTIONS.length; j++) { //remove this on click
+                    if (j == i) {
+                        OPTIONS[j].card.removeEventListener("click", inner_handler);
+                    } else {
+                        OPTIONS[j].card.removeAllChildren(); //should I set it to null too?
+                    }
+                }
+                OPTIONS[i].flip(300, 0);
+                setTimeout(function() { //delay before continuing
+                    OPTIONS[i].card.removeAllChildren(); //remove this card
+                    console.log(params.weapon[i]);
+                    clearCur();
+                    //socket.emit('defended_attack', params.armor[i]);
+                    var damage = params.weapon[i] - params.armor;
+                    if (damage < 0) {
+                        damage = 0;
+                    }
+                    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+                    CUR_CARD.addElem("center", "You did " + damage + " damage to " + params.enemy + "!");
+                    CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
+                    CUR_CARD.card.addEventListener("click", function(event) {
+                        clearCur();
+                        socket.emit('damage_enemy', {damage: damage, enemy: params.enemy});
+                    });
+                }, 3000);
+            }
+            OPTIONS[i].card.addEventListener("click", inner_handler);
+        }(i))
+    }
 });
 
 socket.on('battle_defend_state', function(params) {
@@ -296,7 +381,6 @@ socket.on('battle_defend_state', function(params) {
                 OPTIONS[i].addElem("center", String(params.armor[i]));
                 OPTIONS[i].flip(0, 0);
                 OPTIONS[i].move(0, 0, EDGE_OFFSET + ((i + 2) * offset), HEIGHT / 2, 0, 1200);
-                OPTIONS[i].option_index = i;
                 var inner_handler = function(event) {
                     for (var j = 0; j < OPTIONS.length; j++) { //remove this on click
                         if (j == i) {
@@ -321,7 +405,7 @@ socket.on('battle_defend_state', function(params) {
         var event = document.createEvent("HTMLEvents");
         event.initEvent("click", true, true);
         CUR_CARD.card.dispatchEvent(event);
-    }, 4000);
+    }, 3000);
 });
 
 socket.on('battle_info_state', function(info) {

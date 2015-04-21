@@ -17,7 +17,7 @@ module.exports = function() {
 
     battle_turn_state = function(socket, session, io, game) {
         console.log(session.color, "BATTLE TURN");
-        socket.emit('battle_turn_state', {});
+        socket.emit('battle_turn_state', {enemies: game.battle.enemies});
     }
 
     battle_defend_state = function(socket, session, io, game) {
@@ -31,7 +31,7 @@ module.exports = function() {
             armor_cards.push(armor[index]);
             armor.splice(index, 1);
         }
-        socket.emit('battle_defend_state', {attacker: game.battle.attacker.name, attack: attack, armor: armor_cards});
+        socket.emit('battle_defend_state', {attacker: game.battle.attacker.name, attack: attack, armor: armor_cards, armor_name: game.players[session.color].armor.name});
     }
 
     battle_info_state = function(socket, session, io, game) {
@@ -82,9 +82,9 @@ module.exports = function() {
         game.battle = {};
         weapon1 = {name: 'big stick', cards: [1, 2, 3, 4]};
         armor1 = {name: 'leather armor', cards: [0, 1, 1, 1, 1]};
-        orc1 = {name: 'Bob', race: 'orc', weapon: weapon1, armor: armor1, health: 10, speed: 4, str: 4, dex: 1, kno: 5, wis: 4, alive: true, pattern: 'random'};
-        orc2 = {name: 'Bill', race: 'orc', weapon: weapon1, armor: armor1, health: 8, speed: 5, str: 5, dex: 2, kno: 1, wis: 1, alive: true, pattern: 'random'};
-        orc3 = {name: 'Brains', race: 'orc', weapon: weapon1, armor: armor1, health: 10, speed: 6, str: 2, dex: 3, kno: 3, wis: 1, alive: true, pattern: 'random'};
+        orc1 = {name: 'Bob', race: 'orc', weapon: weapon1, armor: armor1, health: 10, speed: 2, str: 4, dex: 1, kno: 5, wis: 4, alive: true, pattern: 'random'};
+        orc2 = {name: 'Bill', race: 'orc', weapon: weapon1, armor: armor1, health: 8, speed: 3, str: 5, dex: 2, kno: 1, wis: 1, alive: true, pattern: 'random'};
+        orc3 = {name: 'Brains', race: 'orc', weapon: weapon1, armor: armor1, health: 10, speed: 4, str: 2, dex: 3, kno: 3, wis: 1, alive: true, pattern: 'random'};
         game.battle.enemies = [orc1, orc2, orc3];
         game.battle.turns = [];
         for (var i = 0; i < game.battle.enemies.length; i++) {

@@ -165,12 +165,38 @@ module.exports = function(socket, session, io, lobbies, games) {
     socket.on('defended_attack', function(armor) {
         for (var i in games[session.room].players) {
             if (games[session.room].players[i].color == games[session.room].battle.attacker.target) {
-                games[session.room].players[i].health -= games[session.room].battle.attacker.attack;
+                var damage = games[session.room].battle.attacker.attack - armor;
+                if (damage < 0) { //very high armor
+                    damage = 0;
+                }
+                games[session.room].players[i].health -= damage;
                 if (games[session.room].players[i].health < 0) {
                     games[session.room].players[i].health = 0;
                 }
             }
         }
         socket.emit('call_callback', 'next_battle_turn');
+    });
+
+    socket.on('attacking_target', function(target) {
+        for (var i = 0; i < games[session.room].battle.enemies.length; i++) {
+            if (games[session.room].battle.enemies[i].name == target) {
+                var armor = games[session.room].battle.enemies[i].armor.cards[Math.floor(Math.random() * games[session.room].battle.enemies[i].armor.cards.length)];
+                var armor_name = games[session.room].battle.enemies[i].armor.name;
+                var weapon = games[session.room].players[session.color].weapon.cards.slice(0);
+                var weapon_name = games[session.room].players[session.color].weapon.name;
+                var weapon_cards = [];
+                for (var i = 0; i < 3; i++) {
+                    var index = Math.floor(Math.random() * weapon.length);
+                    weapon_cards.push(weapon[index]);
+                    weapon.splice(index, 1);
+                }
+                socket.emit('draw_attack_damage', {armor: armor, armor_name: armor_name, weapon: weapon_cards, weapon_name: weapon_name, enemy: target});
+            }
+        }
+    });
+
+    socket.on('damage_enemy', function(params) {
+        console.log(params);
     });
 }
