@@ -210,6 +210,9 @@ socket.on('update_player_cards', function(players) {
         }
         PLAYERS[counter].addElem("top", text);
         PLAYERS[counter].move(0, 0, EDGE_OFFSET + ((counter + 1) * offset), 1150 * HEIGHT_RATIO, 0, 0);
+        if (players[i].health <= 0) {
+            PLAYERS[counter].flip(0, 0);
+        }
         counter += 1;
     }
 });
@@ -225,6 +228,9 @@ socket.on('update_enemy_cards', function(enemies) {
         text += "\nKNO: " + enemies[i].kno + "  WIS: " + enemies[i].wis;
         ENEMIES[i].addElem("bottom", text);
         ENEMIES[i].move(0, 0, EDGE_OFFSET + ((i + 1) * offset), -180 * HEIGHT_RATIO, 0, 0);
+        if (enemies[i].health <= 0) {
+            ENEMIES[i].flip(0, 0);
+        }
     }
 });
 
@@ -277,7 +283,7 @@ socket.on('call_callback', function(callback) {
 socket.on('battle_turn_state', function(params) {
     var enemy_nums = [];
     for (var i = 0; i < params.enemies.length; i++) { // compile a list of living enemies
-        if (params.enemies[i].alive) {
+        if (params.enemies[i].health > 0) {
             enemy_nums.push(i);
         }
     }
@@ -323,9 +329,9 @@ socket.on('battle_turn_state', function(params) {
 
 socket.on('draw_attack_damage', function(params) {
     console.log(params.weapon);
+    var offset = (WIDTH - (EDGE_OFFSET * 2)) / (params.weapon.length + 2); 
     CUR_CARD.addElem("center", "Draw " + params.weapon_name + " card to damage against " + params.enemy + "'s " + params.armor_name + ":");
     clearOptions();
-    var offset = (WIDTH - (EDGE_OFFSET * 2)) / (params.weapon.length + 2); 
     for (var i = 0; i < params.weapon.length; i++) {
         (function (i) { //closure! since javascript only has function scope not block scope
             OPTIONS[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);

@@ -170,8 +170,13 @@ module.exports = function(socket, session, io, lobbies, games) {
                     damage = 0;
                 }
                 games[session.room].players[i].health -= damage;
-                if (games[session.room].players[i].health < 0) {
+                if (games[session.room].players[i].health <= 0) {
                     games[session.room].players[i].health = 0;
+                    for (var j = 0; j < games[session.room].battle.turns.length; j++) { //get rid of dead player in battle turn sequence
+                        if (games[session.room].battle.turns[j].name == games[session.room].players[i].color) {
+                            games[session.room].battle.turns.splice(j, 1);
+                        }
+                    }
                 }
             }
         }
@@ -197,6 +202,19 @@ module.exports = function(socket, session, io, lobbies, games) {
     });
 
     socket.on('damage_enemy', function(params) {
-        console.log(params);
+        for (var i = 0; i < games[session.room].battle.enemies.length; i++) {
+            if (games[session.room].battle.enemies[i].name == params.enemy) {
+                games[session.room].battle.enemies[i].health -= params.damage;
+                if (games[session.room].battle.enemies[i].health <= 0) {
+                    games[session.room].battle.enemies[i].health = 0;
+                    for (var j = 0; j < games[session.room].battle.turns.length; j++) { //get rid of dead enemy in battle turn sequence
+                        if (games[session.room].battle.turns[j].name == params.enemy) {
+                            games[session.room].battle.turns.splice(j, 1);
+                        }
+                    }
+                }
+            }
+        }
+        socket.emit('call_callback', 'next_battle_turn');
     });
 }
