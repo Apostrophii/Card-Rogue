@@ -108,6 +108,29 @@ module.exports = function(socket, session, io, lobbies, games) {
         io.to(session.room).emit('clear_current') //get rid of later
         io.to(session.room).emit('update_player_cards', games[session.room].players);
         io.to(session.room).emit('update_enemy_cards', games[session.room].battle.enemies);
+        var player_survivor = false;
+        var enemy_survivor = false;
+        for (var i in games[session.room].players) { //check if any player is still alive
+            if (games[session.room].players[i].health > 0) {
+                player_survivor = true;
+                break;
+            }
+        }
+        if (!player_survivor) { //all players are dead
+            io.to(session.room).emit('log', "THEY'RE ALL DEAD!!");
+            games[session.room] = null;
+            return;
+        }
+        for (var i = 0; i < games[session.room].battle.enemies.length; i++) {
+            if (games[session.room].battle.enemies[i].health > 0) {
+                enemy_survivor = true;
+                break;
+            }
+        }
+        if (!enemy_survivor) { //all enemies are dead
+            io.to(session.room).emit('log', "VICTORY MY LORD!!");
+            return;
+        }
         var max = {name: null, speed: 0};
         while(max.speed < 20) {
             for (var i = 0; i < games[session.room].battle.turns.length; i++) {
@@ -139,9 +162,11 @@ module.exports = function(socket, session, io, lobbies, games) {
                     if (games[session.room].battle.enemies[i].pattern == 'random') { //find attack pattern
                         var target;
                         var count = 0;
-                        for (var prop in games[session.room].players) { //get random player
-                            if (Math.random() < 1 / ++count) {
-                                target = prop;
+                        while (games[session.room].players[target] == undefined || games[session.room].players[target].health == 0) {
+                            for (var prop in games[session.room].players) { //get random player
+                                if (Math.random() < 1 / ++count) { //this is a bizare solution that actually seems to work, should probably check out later
+                                    target = prop;
+                                }
                             }
                         }
                         games[session.room].players[target].state = "battle_defend_state";
@@ -170,13 +195,17 @@ module.exports = function(socket, session, io, lobbies, games) {
                     damage = 0;
                 }
                 games[session.room].players[i].health -= damage;
-                if (games[session.room].players[i].health <= 0) {
+                if (games[session.room].players[i].health <= 0) { //they are dead
                     games[session.room].players[i].health = 0;
                     for (var j = 0; j < games[session.room].battle.turns.length; j++) { //get rid of dead player in battle turn sequence
                         if (games[session.room].battle.turns[j].name == games[session.room].players[i].color) {
                             games[session.room].battle.turns.splice(j, 1);
                         }
                     }
+                    socket.emit("log", "YOU HAVE DIED");
+                    io.to(session.room).emit('update_player_cards', games[session.room].players);
+                    socket.emit("death");
+                    socket.leave(session.room); //disconnect this client
                 }
             }
         }

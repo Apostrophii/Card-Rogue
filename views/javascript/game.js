@@ -375,7 +375,7 @@ socket.on('draw_attack_damage', function(params) {
 socket.on('battle_defend_state', function(params) {
     clearCur();
     CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
-    CUR_CARD.addElem("center", params.attacker + " is attacking you for " + String(params.attack) + " damage!\nDraw armor card to defend!");
+    CUR_CARD.addElem("center", params.attacker + " is attacking you for " + String(params.attack) + " damage!\n\nDraw armor card to defend!");
     CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
     console.log(params.armor);
     var handler = function(event) {
@@ -422,4 +422,15 @@ socket.on('battle_info_state', function(info) {
     CUR_CARD.addElem("center", info);
     CUR_CARD.move(0,0, 750 * RATIO, HEIGHT / 2, 0, 0); 
     //CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
+});
+
+socket.on('death', function() {
+    clearCur();
+    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+    CUR_CARD.addElem("center", "You are dead.");
+    CUR_CARD.move(0,0, 750 * RATIO, HEIGHT / 2, 0, 0);
+    CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
+    CUR_CARD.card.addEventListener("click", function (event) {
+        window.location.replace("http://cs.wallawalla.edu/cr/");
+    });
 });
