@@ -209,7 +209,7 @@ socket.on('update_player_cards', function(players) {
             var text = '';
         }
         PLAYERS[counter].addElem("top", text);
-        PLAYERS[counter].move(0, 0, EDGE_OFFSET + ((counter + 1) * offset), 1150 * HEIGHT_RATIO, 0, 0);
+        PLAYERS[counter].move(0, 0, EDGE_OFFSET + ((counter + 1) * offset), 1120 * HEIGHT_RATIO, 0, 0);
         if (players[i].health <= 0) {
             PLAYERS[counter].flip(0, 0);
         }
@@ -227,7 +227,7 @@ socket.on('update_enemy_cards', function(enemies) {
         text += "\nSTR: " + enemies[i].str + "  DEX: " + enemies[i].dex;
         text += "\nKNO: " + enemies[i].kno + "  WIS: " + enemies[i].wis;
         ENEMIES[i].addElem("bottom", text);
-        ENEMIES[i].move(0, 0, EDGE_OFFSET + ((i + 1) * offset), -180 * HEIGHT_RATIO, 0, 0);
+        ENEMIES[i].move(0, 0, EDGE_OFFSET + ((i + 1) * offset), -120 * HEIGHT_RATIO, 0, 0);
         if (enemies[i].health <= 0) {
             ENEMIES[i].flip(0, 0);
         }
@@ -357,7 +357,9 @@ socket.on('draw_attack_damage', function(params) {
                         damage = 0;
                     }
                     CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
-                    CUR_CARD.addElem("center", "You did " + damage + " damage to " + params.enemy + "!");
+                    var message = params.enemy + " defended your " + params.weapon[i] + " damage attack with " + params.armor + " armor.\n\n";
+                    message += "You did " + damage + " damage to " + params.enemy + "!";
+                    CUR_CARD.addElem("center", message);
                     CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
                     CUR_CARD.card.addEventListener("click", function(event) {
                         clearCur();
@@ -416,4 +418,8 @@ socket.on('battle_defend_state', function(params) {
 
 socket.on('battle_info_state', function(info) {
     console.log(info);
+    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+    CUR_CARD.addElem("center", info);
+    CUR_CARD.move(0,0, 750 * RATIO, HEIGHT / 2, 0, 0); 
+    //CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
 });

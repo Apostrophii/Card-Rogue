@@ -49,7 +49,7 @@ module.exports = function(socket, session, io, lobbies, games) {
             games[session.room].players[session.color].dex += (Math.floor(Math.random() * 3) + 1);
             games[session.room].players[session.color].kno = (Math.floor(Math.random() * 3) + 1);
         }
-        games[session.room].players[session.color].health = 20;
+        games[session.room].players[session.color].health = 5;
         games[session.room].players[session.color].speed = (Math.floor(Math.random() * 4) + 3);
         games[session.room].players[session.color].weapon = {name: 'short sword', cards: [1, 2, 3, 4, 5, 6]};
         games[session.room].players[session.color].armor = {name: 'light armor', cards: [0, 0, 1, 1, 2, 2]};
@@ -105,9 +105,9 @@ module.exports = function(socket, session, io, lobbies, games) {
 
     socket.on('next_battle_turn', function() {
         console.log("NEXT BATTLE TURN");
-        socket.emit('clear_current') //get rid of later
-        socket.emit('update_player_cards', games[session.room].players);
-        socket.emit('update_enemy_cards', games[session.room].battle.enemies);
+        io.to(session.room).emit('clear_current') //get rid of later
+        io.to(session.room).emit('update_player_cards', games[session.room].players);
+        io.to(session.room).emit('update_enemy_cards', games[session.room].battle.enemies);
         var max = {name: null, speed: 0};
         while(max.speed < 20) {
             for (var i = 0; i < games[session.room].battle.turns.length; i++) {
