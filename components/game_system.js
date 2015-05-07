@@ -129,6 +129,7 @@ module.exports = function(socket, session, io, lobbies, games) {
         }
         if (!enemy_survivor) { //all enemies are dead
             io.to(session.room).emit('log', "VICTORY MY LORD!!");
+            io.to(session.room).emit('victory', games[session.room].battle.victory_params);
             return;
         }
         var max = {name: null, speed: 0};

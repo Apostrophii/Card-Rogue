@@ -331,6 +331,7 @@ socket.on('draw_attack_damage', function(params) {
     console.log(params.weapon);
     var offset = (WIDTH - (EDGE_OFFSET * 2)) / (params.weapon.length + 2); 
     CUR_CARD.addElem("center", "Draw " + params.weapon_name + " card to damage against " + params.enemy + "'s " + params.armor_name + ":");
+    CUR_CARD.move(0, 0, EDGE_OFFSET + (1 * offset), HEIGHT / 2, 0, 1200);
     clearOptions();
     for (var i = 0; i < params.weapon.length; i++) {
         (function (i) { //closure! since javascript only has function scope not block scope
@@ -433,4 +434,18 @@ socket.on('death', function() {
     CUR_CARD.card.addEventListener("click", function (event) {
         window.location.replace("http://cs.wallawalla.edu/cr/");
     });
+});
+
+socket.on('victory', function(params) {
+    clearEnemies();
+    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+    CUR_CARD.addElem("center", params.message);
+    CUR_CARD.move(750 * RATIO, -250 * RATIO, 750 * RATIO, HEIGHT / 2, 0, 0);
+    CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
+    clearDeck();
+    if (params.callback) {
+        CUR_CARD.card.addEventListener("click", function (event) {
+            socket.emit(params.callback, params.params);
+        });
+    }
 });
