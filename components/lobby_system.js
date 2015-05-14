@@ -1,5 +1,6 @@
 module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, games) {
     STANDARD_DECK = ['test_card2', 'test_card3', 'test_card4', 'test_card5', 'test_choice1', 'test_choice2', 'test_battle_card1', 'test_battle_card1'];
+    STANDARD_DECK = ['test_choice3', 'test_choice4', 'test_choice5', 'test_choice6', 'test_choice7', 'test_choice8', 'test_battle_card1', 'test_battle_card2'];
 
     socket.on('clear_user_info', function() {
         session.color = undefined;

@@ -36,20 +36,20 @@ module.exports = function(socket, session, io, lobbies, games) {
         games[session.room].players[session.color].dex = (Math.floor(Math.random() * 6) + 1);
         games[session.room].players[session.color].kno = (Math.floor(Math.random() * 6) + 1);
         games[session.room].players[session.color].wis = (Math.floor(Math.random() * 6) + 1);
-        if (params.race == 'man') { // race specific bonuses and disadvantages
+        if (params.race == 'knight') { // race specific bonuses and disadvantages
             games[session.room].players[session.color].kno += (Math.floor(Math.random() * 3) + 1);
             games[session.room].players[session.color].wis = (Math.floor(Math.random() * 3) + 1);
-        } else if (params.race == 'elf') {
+        } else if (params.race == 'knave') {
             games[session.room].players[session.color].wis += (Math.floor(Math.random() * 3) + 1);
             games[session.room].players[session.color].str = (Math.floor(Math.random() * 3) + 1);
-        } else if (params.race == 'hill ogre') {
+        } else if (params.race == 'normal') {
             games[session.room].players[session.color].str += (Math.floor(Math.random() * 3) + 1);
             games[session.room].players[session.color].dex = (Math.floor(Math.random() * 3) + 1);
-        } else if (params.race == 'felid') {
+        } else if (params.race == 'foreigner') {
             games[session.room].players[session.color].dex += (Math.floor(Math.random() * 3) + 1);
             games[session.room].players[session.color].kno = (Math.floor(Math.random() * 3) + 1);
         }
-        games[session.room].players[session.color].health = 5;
+        games[session.room].players[session.color].health = 10;
         games[session.room].players[session.color].speed = (Math.floor(Math.random() * 4) + 3);
         games[session.room].players[session.color].weapon = {name: 'short sword', cards: [1, 2, 3, 4, 5, 6]};
         games[session.room].players[session.color].armor = {name: 'light armor', cards: [0, 0, 1, 1, 2, 2]};
