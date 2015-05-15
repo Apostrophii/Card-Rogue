@@ -40,91 +40,57 @@ module.exports = function() {
         socket.emit('battle_info_state', game.battle.info);
     }
 
-    test_card1 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'test', text: 'this is all one big test'});
-    }
-
-    test_card2 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'not a test', text: 'do you have any idea what this is?'});
-    }
-
-    test_card3 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', params: null, title: '49', text: 'but what was the question...'});
-    }
-
-    test_card4 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'it', text: 'was\na\ndark\nand\nstormy\nnight'});
-    }
-
-    test_card5 = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'it was\na bright\ncold day\nin april', text: 'and the clocks were striking thirteen'});
+    start_card1 = function(socket, session, io, game) {
+        socket.emit('info_card', {callback: 'finished_card', params: null, title: 'Welcome Adventurers!', text: 'May your quest for the fabled golden island of MAYA end in success!'});
     }
 
     last_card = function(socket, session, io, game) {
-        socket.emit('info_card', {callback: null, params: null, title: 'fin', text: 'you have found the end!'});
-    }
-
-    test_choice1 = function(socket, session, io, game) {
-        var choice1 = {callback: 'log', params: 'choice 1', text: 'A is a knight.\n\nB is a knight.'};
-        var choice2 = {callback: 'log', params: 'choice 2', text: 'A is a knight.\n\nB is a knave.'};
-        var choice3 = {callback: 'log', params: 'choice 3', text: 'A is a knave.\n\nB is a knight.'};
-        var choice4 = {callback: 'log', params: 'choice 4', text: 'A is a knave.\n\nB is a knave.'};
-        var choices = [choice1, choice2, choice3, choice4];
-        socket.emit('choice_card', {callback: null, title: '', text: 'There are persons A and B;\nA makes the statement:\n\n"At least one of us is a knave."', choices: choices});
-    }
-
-    test_choice2 = function(socket, session, io, game) {
-        var choice1 = {callback: 'log', params: 'choice 1', text: 'A is a knight.\n\nB is a knight.'};
-        var choice2 = {callback: 'log', params: 'choice 2', text: 'A is a knight.\n\nB is a knave.'};
-        var choice3 = {callback: 'log', params: 'choice 3', text: 'A is a knave.\n\nB is a knight.'};
-        var choice4 = {callback: 'log', params: 'choice 4', text: 'A is a knave.\n\nB is a knave.'};
-        var choices = [choice1, choice2, choice3, choice4];
-        socket.emit('choice_card', {callback: null, title: '', text: 'There are persons A and B;\nA makes the statement:\n\n"Either I am a knave or B is a knight."', choices: choices});
+        socket.emit('info_card', {callback: null, params: null, title: 'Death.', text: DEATHS2[Math.floor(Math.random()*DEATHS2.length)]});
     }
 
     test_choice3 = function(socket, session, io, game) {
-        var choice1 = {callback: 'log', params: 'choice 1', text: 'This is the island of Maya.'};
-        var choice2 = {callback: 'log', params: 'choice 2', text: 'This is not the fabled island.'};
+        var choice1 = {callback: 'death', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This is the island of Maya.'};
+        var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This is not the fabled island.'};
         var choices = [choice1, choice2];
         var text = 'You encounter two friendly natives:\n\nA: B is a knight and this is the island of Maya.\n\nB: A is a knave and this is the island of Maya.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
     }
 
     test_choice4 = function(socket, session, io, game) {
-        var choice1 = {callback: 'log', params: 'choice 1', text: 'You have found Maya!'};
-        var choice2 = {callback: 'log', params: 'choice 2', text: 'This island isn\'t Maya...'};
+        var choice1 = {callback: 'death', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'You have found Maya!'};
+        var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This island isn\'t Maya...'};
         var choices = [choice1, choice2];
         var text = 'You come accross a pair of friendly natives:\n\nA: We are both knaves and this is the island of Maya.\n\nB: That is true.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
     }
 
     test_choice5 = function(socket, session, io, game) {
-        var choice1 = {callback: 'log', params: 'choice 1', text: 'This be Maya!'};
-        var choice2 = {callback: 'log', params: 'choice 2', text: 'This isn\'t the one.'};
+        var choice1 = {callback: 'death', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This be Maya!'};
+        var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This island isn\'t the one.'};
         var choices = [choice1, choice2];
         var text = 'Two natives approach you:\n\nA: At least one of us is a knave, and this is the island of Maya.\n\nB: That is true.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
     }
 
     test_choice6 = function(socket, session, io, game) {
-        var choice1 = {callback: 'log', params: 'choice 1', text: 'Maya has been found.'};
-        var choice2 = {callback: 'log', params: 'choice 2', text: 'Maya has not been found.'};
+        var choice1 = {callback: 'death', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'Maya has been found.'};
+        var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'Maya has not been found.'};
         var choices = [choice1, choice2];
         var text = 'You find two natives who say:\n\nA: Both of us are knave, and this is the island of Maya.\n\nB: At least one of us is a knave, and this is not the island of Maya.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
     }
 
     test_choice7 = function(socket, session, io, game) {
-        var choice1 = {callback: 'log', params: 'choice 1', text: 'This appears to be the island of Maya.'};
-        var choice2 = {callback: 'log', params: 'choice 2', text: 'This is not Maya.'};
+        var choice1 = {callback: 'death', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This appears to be the island of Maya.'};
+        var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This is not Maya.'};
         var choices = [choice1, choice2];
         var text = 'Two natives tell you:\n\nA: Both of us are knave, and this is the island of Maya.\n\nB: At least one of us is a knight, and this is not the island of Maya.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
     }
 
     test_choice8 = function(socket, session, io, game) {
-        var choice1 = {callback: 'log', params: 'choice 1', text: 'This is the island of gold.'};
-        var choice2 = {callback: 'log', params: 'choice 2', text: 'Not this one...'};
+        var choice1 = {callback: 'win', params: '', text: 'This is the island of gold.'};
+        var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'Not this one...'};
         var choices = [choice1, choice2];
         var text = 'These statements are made by a couple of natives:\n\nA: Either B is a knight, or this is the island of Maya.\n\nB: Either A is a knave, or this is not the island of Maya.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
@@ -134,9 +100,9 @@ module.exports = function() {
         game.battle = {};
         weapon1 = {name: 'large sword', cards: [1, 2, 3, 7]};
         armor1 = {name: 'scale armor', cards: [0, 1, 1, 2, 2]};
-        knight1 = {name: 'Sir Patrickth', race: 'knight', weapon: weapon1, armor: armor1, health: 7, speed: 3, str: 4, dex: 1, kno: 6, wis: 4, pattern: 'random'};
-        knight2 = {name: 'Sir Shovel', race: 'knight', weapon: weapon1, armor: armor1, health: 8, speed: 3, str: 6, dex: 2, kno: 1, wis: 1, pattern: 'random'};
-        knight3 = {name: 'Sir Dusk', race: 'knight', weapon: weapon1, armor: armor1, health: 5, speed: 4, str: 2, dex: 4, kno: 3, wis: 3, pattern: 'random'};
+        knight1 = {name: 'Sir Shovel', race: 'knight', weapon: weapon1, armor: armor1, health: 7, speed: 3, str: 4, dex: 1, kno: 6, wis: 4, pattern: 'random'};
+        knight2 = {name: 'Sir Dusk', race: 'knight', weapon: weapon1, armor: armor1, health: 8, speed: 3, str: 6, dex: 2, kno: 1, wis: 1, pattern: 'random'};
+        knight3 = {name: 'Sir Patrickth', race: 'knight', weapon: weapon1, armor: armor1, health: 5, speed: 4, str: 2, dex: 4, kno: 3, wis: 3, pattern: 'random'};
         victory_message = "You have emerged victorious over the knights!";
         game.battle.victory_params = {callback: 'finished_card', params: null, message: victory_message};
         game.battle.enemies = [knight1, knight2, knight3];

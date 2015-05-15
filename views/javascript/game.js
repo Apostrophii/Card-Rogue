@@ -191,6 +191,10 @@ socket.on('info_card', function(params) {
         CUR_CARD.card.addEventListener("click", function (event) {
             socket.emit(params.callback, params.params);
         });
+    } else {
+        CUR_CARD.card.addEventListener("click", function (event) {
+            window.location.replace("http://cs.wallawalla.edu/cr/");
+        });
     }
 });
 
@@ -258,7 +262,7 @@ socket.on('choice_card', function(params) {
                 OPTIONS[i].addElem("center", CHOICE_PARAMS[i].text);
                 OPTIONS[i].move(0, 0, EDGE_OFFSET + ((i + 2) * offset), HEIGHT / 2, 0, 1200);
                 OPTIONS[i].card.addEventListener("click", function (event) {
-                    socket.emit('clear_options_call');
+                    socket.emit('clear_options_call', CHOICE_PARAMS[i].callback);
                     console.log(i);
                     socket.emit(CHOICE_PARAMS[i].callback, CHOICE_PARAMS[i].params);
                 });
@@ -425,10 +429,12 @@ socket.on('battle_info_state', function(info) {
     //CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
 });
 
-socket.on('death', function() {
+socket.on('death', function(message) {
+    socket.emit('disconnect');
     clearCur();
     CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
-    CUR_CARD.addElem("center", "You are dead.");
+    CUR_CARD.addElem("top", "Death.");
+    CUR_CARD.addElem("center", message);
     CUR_CARD.move(0,0, 750 * RATIO, HEIGHT / 2, 0, 0);
     CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
     CUR_CARD.card.addEventListener("click", function (event) {

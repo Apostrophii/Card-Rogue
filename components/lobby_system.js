@@ -1,6 +1,22 @@
 module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, games) {
     STANDARD_DECK = ['test_card2', 'test_card3', 'test_card4', 'test_card5', 'test_choice1', 'test_choice2', 'test_battle_card1', 'test_battle_card1'];
     STANDARD_DECK = ['test_choice3', 'test_choice4', 'test_choice5', 'test_choice6', 'test_choice7', 'test_choice8', 'test_battle_card1', 'test_battle_card2'];
+    STANDARD_DECK = ['test_choice3', 'test_choice4', 'test_choice5', 'test_choice6', 'test_choice7', 'test_choice8'];
+    DEATHS = [
+        "You accidentally fall down a cliff while wandering the island and die.",
+        "After spending your who life searching for gold on this island you realize there was none. Too bad.",
+        "Angry natives kill you in your sleep. Wonder why they were so mad...",
+        "Turns out the air on this island in some parts of this island is poisonous.",
+        "A cave-in seals your fate after months of searching for the ellusive gold of the island.",
+        "You rack up a huge debt continuing your vain search for gold and are eventually sold into slavery to pay it off.",
+        "Apparently the volcano on this island was still active.",
+    ];
+    DEATHS2 = [
+        "You run out of rations and starve!",
+        "Your boat mysteriosly springs a leak and sinks between islands.",
+        "Moral sinks so low that everyone colapses in unison and dies.",
+        "You get married. I suppose the adventuring days are over now.",
+    ];
 
     socket.on('clear_user_info', function() {
         session.color = undefined;
@@ -13,7 +29,7 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, game
         if (lobbies[session.room].ready >= lobbies[session.room].capacity) { //create new game object here
             if (lobbies[session.room].ingame != true) {
                 lobbies[session.room].ingame = true;
-                games[session.room] = {last_update: Date.now(), players: {}, player_count: lobbies[session.room].capacity, ready_count: 0, deck_size: 5, deck: STANDARD_DECK, 
+                games[session.room] = {last_update: Date.now(), players: {}, player_count: lobbies[session.room].capacity, ready_count: 0, deck_size: 6, deck: STANDARD_DECK, 
                                        current_card: undefined};
             }
         }

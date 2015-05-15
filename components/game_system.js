@@ -18,7 +18,7 @@ module.exports = function(socket, session, io, lobbies, games) {
         if (!session.color) { //remember to set color to null at the end of the game
             session.color = 'silver';
             session.save();
-            games[session.room] = {last_update: Date.now(), players: {}, player_count: 1, ready_count: 0, deck_size: 5, deck: STANDARD_DECK, current_card: undefined}; //single player game set up
+            games[session.room] = {last_update: Date.now(), players: {}, player_count: 1, ready_count: 0, deck_size: 6, deck: STANDARD_DECK, current_card: undefined}; //single player game set up
         }
         if (!games[session.room].players[session.color]) { //set up each player in the game
             games[session.room].players[session.color] = {};
@@ -71,7 +71,12 @@ module.exports = function(socket, session, io, lobbies, games) {
 
     socket.on('draw_card_callback', function() {
         console.log("DREW CARD");
-        if (games[session.room].deck_size > 1) { // else go to last card //TODO: change this to 0
+        if (games[session.room].deck_size == 6) {
+            for (var key in games[session.room].players) {
+                games[session.room].players[key].state = "start_card1";
+            }
+            games[session.room].deck_size -= 1; //reduce deck size
+        } else if (games[session.room].deck_size > 1) { // else go to last card //TODO: change this to 0
             var index = Math.floor(Math.random() * games[session.room].deck.length); //get random index in the deck
             for (var key in games[session.room].players) {
                 games[session.room].players[key].state = games[session.room].deck[index]; 
@@ -82,6 +87,7 @@ module.exports = function(socket, session, io, lobbies, games) {
             for (var key in games[session.room].players) {
                 games[session.room].players[key].state = "last_card";
             }
+            games[session.room].deck_size -= 1; //reduce deck size
         }
         io.to(session.room).emit('seek_next');
     });
@@ -94,13 +100,15 @@ module.exports = function(socket, session, io, lobbies, games) {
         io.to(session.room).emit('seek_next');
     });
 
-    socket.on('clear_options_call', function() {
+    socket.on('clear_options_call', function(param) {
         console.log("CLEARING OPTIONS");
         io.to(session.room).emit('clear_options');
-        for (var key in games[session.room].players) {
-            games[session.room].players[key].state = "draw_card_state";
+        if (param != 'death' && param != 'win') {
+            for (var key in games[session.room].players) {
+                games[session.room].players[key].state = "draw_card_state";
+            }
+            io.to(session.room).emit('seek_next');
         }
-        io.to(session.room).emit('seek_next');
     });
 
     socket.on('next_battle_turn', function() {
@@ -205,8 +213,7 @@ module.exports = function(socket, session, io, lobbies, games) {
                     }
                     socket.emit("log", "YOU HAVE DIED");
                     io.to(session.room).emit('update_player_cards', games[session.room].players);
-                    socket.emit("death");
-                    socket.leave(session.room); //disconnect this client
+                    socket.emit("death", "You have been slain.");
                 }
             }
         }
@@ -246,5 +253,18 @@ module.exports = function(socket, session, io, lobbies, games) {
             }
         }
         socket.emit('call_callback', 'next_battle_turn');
+    });
+
+    socket.on('death', function(message) {
+        io.to(session.room).emit("death", message);
+    });
+
+    socket.on('disconnect', function() {
+        socket.leave(session.room); //disconnect this client
+    });
+    
+    socket.on('win', function() {
+        console.log("WIN");
+        io.to(session.room).emit('info_card', {callback: null, params: null, title: 'YOU WIN!', text: "You have found the rumored island of gold, Maya!"});
     });
 }
