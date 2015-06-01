@@ -60,7 +60,7 @@ module.exports = function() {
         var choice1 = {callback: 'death', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'You have found Maya!'};
         var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This island isn\'t Maya...'};
         var choices = [choice1, choice2];
-        var text = 'You come accross a pair of friendly natives:\n\nA: We are both knaves and this is the island of Maya.\n\nB: That is true.';
+        var text = 'You come across a pair of friendly natives:\n\nA: We are both knaves and this is the island of Maya.\n\nB: That is true.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
     }
 
@@ -76,7 +76,7 @@ module.exports = function() {
         var choice1 = {callback: 'death', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'Maya has been found.'};
         var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'Maya has not been found.'};
         var choices = [choice1, choice2];
-        var text = 'You find two natives who say:\n\nA: Both of us are knave, and this is the island of Maya.\n\nB: At least one of us is a knave, and this is not the island of Maya.';
+        var text = 'You find two natives who say:\n\nA: Both of us are knaves, and this is the island of Maya.\n\nB: At least one of us is a knave, and this is not the island of Maya.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
     }
 
@@ -84,7 +84,7 @@ module.exports = function() {
         var choice1 = {callback: 'death', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This appears to be the island of Maya.'};
         var choice2 = {callback: 'log', params: DEATHS[Math.floor(Math.random()*DEATHS.length)], text: 'This is not Maya.'};
         var choices = [choice1, choice2];
-        var text = 'Two natives tell you:\n\nA: Both of us are knave, and this is the island of Maya.\n\nB: At least one of us is a knight, and this is not the island of Maya.';
+        var text = 'Two natives tell you:\n\nA: Both of us are knaves, and this is the island of Maya.\n\nB: At least one of us is a knight, and this is not the island of Maya.';
         socket.emit('choice_card', {callback: null, title: '', text: text, choices: choices});
     }
 
@@ -100,9 +100,9 @@ module.exports = function() {
         game.battle = {};
         weapon1 = {name: 'large sword', cards: [1, 2, 3, 7]};
         armor1 = {name: 'scale armor', cards: [0, 1, 1, 2, 2]};
-        knight1 = {name: 'Sir Shovel', race: 'knight', weapon: weapon1, armor: armor1, health: 7, speed: 3, str: 4, dex: 1, kno: 6, wis: 4, pattern: 'random'};
-        knight2 = {name: 'Sir Dusk', race: 'knight', weapon: weapon1, armor: armor1, health: 8, speed: 3, str: 6, dex: 2, kno: 1, wis: 1, pattern: 'random'};
-        knight3 = {name: 'Sir Patrickth', race: 'knight', weapon: weapon1, armor: armor1, health: 5, speed: 4, str: 2, dex: 4, kno: 3, wis: 3, pattern: 'random'};
+        knight1 = {name: 'Sir Shovel', race: 'knight', weapon: weapon1, armor: armor1, health: 3, speed: 3, str: 4, dex: 1, kno: 6, wis: 4, pattern: 'random'};
+        knight2 = {name: 'Sir Dusk', race: 'knight', weapon: weapon1, armor: armor1, health: 4, speed: 3, str: 6, dex: 2, kno: 1, wis: 1, pattern: 'random'};
+        knight3 = {name: 'Sir Patrickth', race: 'knight', weapon: weapon1, armor: armor1, health: 4, speed: 4, str: 2, dex: 4, kno: 3, wis: 3, pattern: 'random'};
         victory_message = "You have emerged victorious over the knights!";
         game.battle.victory_params = {callback: 'finished_card', params: null, message: victory_message};
         game.battle.enemies = [knight1, knight2, knight3];
@@ -121,8 +121,8 @@ module.exports = function() {
         game.battle = {};
         weapon1 = {name: 'big stick', cards: [1, 2, 3, 3]};
         armor1 = {name: 'leather armor', cards: [0, 1, 1, 1, 1]};
-        knave1 = {name: 'Usopp', race: 'knight', weapon: weapon1, armor: armor1, health: 7, speed: 9, str: 4, dex: 6, kno: 5, wis: 5, pattern: 'random'};
-        knave2 = {name: 'Luke', race: 'knight', weapon: weapon1, armor: armor1, health: 4, speed: 10, str: 10, dex: 10, kno: 10, wis: 10, pattern: 'random'};
+        knave1 = {name: 'Usopp', race: 'knave', weapon: weapon1, armor: armor1, health: 5, speed: 9, str: 4, dex: 6, kno: 5, wis: 5, pattern: 'random'};
+        knave2 = {name: 'Luke', race: 'knave', weapon: weapon1, armor: armor1, health: 2, speed: 10, str: 10, dex: 10, kno: 10, wis: 10, pattern: 'random'};
         victory_message = "You have emerged victorious over the knaves!";
         game.battle.victory_params = {callback: 'finished_card', params: null, message: victory_message};
         game.battle.enemies = [knave1, knave2];

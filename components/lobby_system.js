@@ -1,7 +1,7 @@
 module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, games) {
     STANDARD_DECK = ['test_card2', 'test_card3', 'test_card4', 'test_card5', 'test_choice1', 'test_choice2', 'test_battle_card1', 'test_battle_card1'];
     STANDARD_DECK = ['test_choice3', 'test_choice4', 'test_choice5', 'test_choice6', 'test_choice7', 'test_choice8', 'test_battle_card1', 'test_battle_card2'];
-    STANDARD_DECK = ['test_choice3', 'test_choice4', 'test_choice5', 'test_choice6', 'test_choice7', 'test_choice8'];
+    STANDARD_DECK = ['test_battle_card1', 'test_battle_card2'];
     DEATHS = [
         "You accidentally fall down a cliff while wandering the island and die.",
         "After spending your who life searching for gold on this island you realize there was none. Too bad.",
@@ -47,10 +47,10 @@ module.exports = function(socket, session, io, lobbies, lobby_pwds, colors, game
     socket.on('make_lobby', function(info){
         lobbies.counter += 1;
         if ((info.lobby_pwd == '') || (info.lobby_pwd == undefined)) {
-            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, ready: 0, free_colors: colors, log: [], has_pwd: false, ingame: false}; //create lobby without pwd
+            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, ready: 0, free_colors: colors.slice(0), log: [], has_pwd: false, ingame: false}; //create lobby without pwd
         }
         else {
-            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, ready: 0, free_colors: colors, log: [], has_pwd: true, ingame: false}; //create lobby with pwd
+            lobbies[String(lobbies.counter)] = {name: info.lobby_name, occupants: 0, capacity: info.capacity, ready: 0, free_colors: colors.slice(0), log: [], has_pwd: true, ingame: false}; //create lobby with pwd
             lobby_pwds[String(lobbies.counter)] = info.lobby_pwd;
         }
         session.room = String(lobbies.counter);

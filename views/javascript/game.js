@@ -71,7 +71,7 @@ socket.on('char_select_state', function(params) {
     var conf = document.createElement("p");
     title.innerHTML = "CHARACTER CREATION";
     p1.innerHTML = "NAME:";
-    p2.innerHTML = "RACE:";
+    p2.innerHTML = "SOCIOECONOMIC POSITION:";
     conf.innerHTML = "CONFIRM";
     conf.setAttribute("autofocus", "autofocus"); //don't think this does anything
     input.setAttribute("type", "text");
@@ -156,6 +156,7 @@ clearOptions = function() {
 }
 
 clearCur = function() {
+    console.log("CLEARCUR");
     if (CUR_CARD) {
         CUR_CARD.card.removeAllChildren();
         CUR_CARD = null;
@@ -207,8 +208,8 @@ socket.on('update_player_cards', function(players) {
         if (players[i].race) {
             var text = players[i].name + " the " + players[i].race.toUpperCase();
             text += "\nHP: " + players[i].health + "  SP: " + players[i].speed;
-            text += "\nSTR: " + players[i].str + "  DEX: " + players[i].dex;
-            text += "\nKNO: " + players[i].kno + "  WIS: " + players[i].wis;
+            //text += "\nSTR: " + players[i].str + "  DEX: " + players[i].dex;
+            //text += "\nKNO: " + players[i].kno + "  WIS: " + players[i].wis;
         } else { //in case the player hasn't chosen a name and race yet
             var text = '';
         }
@@ -228,8 +229,8 @@ socket.on('update_enemy_cards', function(enemies) {
         ENEMIES[i] = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
         var text = enemies[i].name + " the " + enemies[i].race.toUpperCase();
         text += "\nHP: " + enemies[i].health + "  SP: " + enemies[i].speed;
-        text += "\nSTR: " + enemies[i].str + "  DEX: " + enemies[i].dex;
-        text += "\nKNO: " + enemies[i].kno + "  WIS: " + enemies[i].wis;
+        //text += "\nSTR: " + enemies[i].str + "  DEX: " + enemies[i].dex;
+        //text += "\nKNO: " + enemies[i].kno + "  WIS: " + enemies[i].wis;
         ENEMIES[i].addElem("bottom", text);
         ENEMIES[i].move(0, 0, EDGE_OFFSET + ((i + 1) * offset), -120 * HEIGHT_RATIO, 0, 0);
         if (enemies[i].health <= 0) {
@@ -431,15 +432,17 @@ socket.on('battle_info_state', function(info) {
 
 socket.on('death', function(message) {
     socket.emit('disconnect');
-    clearCur();
-    CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
-    CUR_CARD.addElem("top", "Death.");
-    CUR_CARD.addElem("center", message);
-    CUR_CARD.move(0,0, 750 * RATIO, HEIGHT / 2, 0, 0);
-    CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
-    CUR_CARD.card.addEventListener("click", function (event) {
-        window.location.replace("http://cs.wallawalla.edu/cr/");
-    });
+    setTimeout(function() {
+        clearCur();
+        CUR_CARD = new Card(STAGE, CARDFRONT_BASIC, CARDBACK_BASIC);
+        CUR_CARD.addElem("top", "Death.");
+        CUR_CARD.addElem("center", message);
+        CUR_CARD.move(0,0, 750 * RATIO, HEIGHT / 2, 0, 0);
+        CUR_CARD.scale(1 * RATIO, 2.2 * HEIGHT_RATIO, 400, 800);
+        CUR_CARD.card.addEventListener("click", function (event) {
+            window.location.replace("http://cs.wallawalla.edu/cr/");
+        });
+    }, 1000); //delay for a second
 });
 
 socket.on('victory', function(params) {

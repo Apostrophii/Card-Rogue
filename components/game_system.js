@@ -49,7 +49,7 @@ module.exports = function(socket, session, io, lobbies, games) {
             games[session.room].players[session.color].dex += (Math.floor(Math.random() * 3) + 1);
             games[session.room].players[session.color].kno = (Math.floor(Math.random() * 3) + 1);
         }
-        games[session.room].players[session.color].health = 10;
+        games[session.room].players[session.color].health = (Math.floor(Math.random() * 3) + 3);
         games[session.room].players[session.color].speed = (Math.floor(Math.random() * 4) + 3);
         games[session.room].players[session.color].weapon = {name: 'short sword', cards: [1, 2, 3, 4, 5, 6]};
         games[session.room].players[session.color].armor = {name: 'light armor', cards: [0, 0, 1, 1, 2, 2]};
